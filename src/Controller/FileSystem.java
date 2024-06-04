@@ -142,7 +142,25 @@ public class FileSystem {
         System.out.println(disk.toString());
     }
 
+    public String getFileProperties(String name) {
+        File file = null;
+        String properties = "";
+        for (Node node : current.getChildren()) {
+            if (node.getName().equals(name) && node instanceof File) {
+                file = (File) node;
+                break;
+            }
+        }
+        if (file == null) {
+            return null;
+        }
 
+        properties = "\nName: " + file.getName();
+        properties += "\nPath: " + file.getPath();
+        properties += "\nSize: " + disk.getSectors().get(file.getStart()).getAllContent().length() + " bytes";
+        properties += "\nCreated: " + file.getCreated();
+        return properties;
+    }
 
     public void remove(String name) {
         current.removeChild(name);
