@@ -304,8 +304,39 @@ public class Principal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFileBtnActionPerformed
-        
+    private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//
+        //input dialog para el nombre del archivo
+        String newFileName = JOptionPane.showInputDialog(this, "Escriba el nombre del archivo:");
+        String content = JOptionPane.showInputDialog(this, "Escriba el contenido del archivo:");
+        if (newFileName != null && !newFileName.trim().isEmpty()) {
+            if (fileSystem.fileExists(newFileName)) {
+                int result = JOptionPane.showConfirmDialog(this,
+                        "El archivo ya existe. ¿Desea sobreescribirlo?",
+                        "Confirmar sobreescritura.",
+                        JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    fileSystem.removeFile(newFileName);
+                    if(fileSystem.createFile(newFileName, content)){
+                        JOptionPane.showMessageDialog(this, "Archivo creado exitosamente.");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "No hay suficiente espacio en el disco.");
+                    }
+                }
+            } else {
+                if(fileSystem.createFile(newFileName, content)){
+                    JOptionPane.showMessageDialog(this, "Archivo creado exitosamente.");
+                }
+                else {
+                    JOptionPane.showMessageDialog(this, "No hay suficiente espacio en el disco.");
+                }
+            }
+            
+            updateFilesTable(fileSystem.getCurrent());
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "El nombre del archivo no puede estar vacío.");
+        }
     }//GEN-LAST:event_createFileBtnActionPerformed
 
     
