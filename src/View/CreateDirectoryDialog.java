@@ -17,6 +17,7 @@ public class CreateDirectoryDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
     }
+    
     public String getDirectoryName() {
         return this.nameField.getText();
     }

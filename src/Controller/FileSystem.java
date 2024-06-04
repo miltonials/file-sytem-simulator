@@ -1,20 +1,34 @@
 package Controller;
 
-import Model.Directory;
-import Model.File;
-import Model.Node;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+
+import Model.Directory;
+import Model.Disk;
+import Model.File;
+import Model.Node;
 
 public class FileSystem {
     private final Directory root;
     private Directory current;
     private PropertyChangeSupport support;
+    private Disk disk;
 
-    public FileSystem() {
+    public FileSystem(int pSectorsQuantity, int pSizeSector) {
         root = new Directory("root", "root/", null);
         current = root;
         support = new PropertyChangeSupport(this);
+        disk = new Disk(pSectorsQuantity, pSizeSector);
+        
+        disk.newFile("primerArchivo.txt", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        disk.getSectors().get(2).cleanSector();
+        disk.getSectors().get(4).cleanSector();
+        disk.getSectors().get(6).cleanSector();
+        disk.newFile("segundoArchivo.txt", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        System.out.println(disk.toString());
+        System.out.println("------------------------");
+        disk.readFile(0);
+        disk.readFile(2);
     }
 
     public Directory getRoot() {

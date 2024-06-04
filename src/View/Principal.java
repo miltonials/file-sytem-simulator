@@ -4,17 +4,16 @@
  */
 package View;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-import Model.Directory;
 import Controller.FileSystem;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import Model.Directory;
 
 /**
  *
@@ -27,7 +26,10 @@ public class Principal extends javax.swing.JFrame {
      */
     public Principal() {
         initComponents();
-        fileSystem = new FileSystem();
+        int sectorsQuantity = Integer.parseInt(JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:"));
+        int sizeSector = Integer.parseInt(JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:"));
+
+        fileSystem = new FileSystem(sectorsQuantity, sizeSector);
         fileSystem.addPropertyChangeListener((PropertyChangeEvent evt) -> {
             if ("current".equals(evt.getPropertyName())) {
                 Directory currentDirectory = (Directory) evt.getNewValue();
@@ -71,9 +73,10 @@ public class Principal extends javax.swing.JFrame {
     }
 
     private void createDirectoryBtnActionPerformed(java.awt.event.ActionEvent evt) {
-        CreateDirectoryDialog dialog = new CreateDirectoryDialog(this,true);
-        dialog.setVisible(true);
-        String newDirectoryName = dialog.getDirectoryName();
+        // CreateDirectoryDialog dialog = new CreateDirectoryDialog(this,true);
+        // dialog.setVisible(true);
+        // String newDirectoryName = dialog.getDirectoryName();
+        String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el nombre del directorio:");
         if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
             if (fileSystem.directoryExists(newDirectoryName)) {
                 int result = JOptionPane.showConfirmDialog(this,
@@ -85,10 +88,14 @@ public class Principal extends javax.swing.JFrame {
                     fileSystem.createDirectory(newDirectoryName);
                 }
             } else {
+                //joption pane de texto
                 fileSystem.createDirectory(newDirectoryName);
             }
             
             updateFilesTable(fileSystem.getCurrent());
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "El nombre del directorio no puede estar vacío.");
         }
     }
     
@@ -109,6 +116,7 @@ public class Principal extends javax.swing.JFrame {
         lowPanel = new javax.swing.JPanel();
         buttonsPanel = new javax.swing.JPanel();
         createDirectoryBtn = new javax.swing.JButton();
+        createFileBtn = new javax.swing.JButton();
         filesPanel = new javax.swing.JScrollPane();
         filesTable = new javax.swing.JTable();
 
@@ -162,19 +170,30 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
+        createFileBtn.setText("Nuevo archivo");
+        createFileBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createFileBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout buttonsPanelLayout = new javax.swing.GroupLayout(buttonsPanel);
         buttonsPanel.setLayout(buttonsPanelLayout);
         buttonsPanelLayout.setHorizontalGroup(
             buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(buttonsPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(createDirectoryBtn))
+                .addGroup(buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(createDirectoryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(createFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)))
         );
         buttonsPanelLayout.setVerticalGroup(
             buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(buttonsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(createDirectoryBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(createFileBtn)
                 .addContainerGap(386, Short.MAX_VALUE))
         );
 
@@ -255,6 +274,10 @@ public class Principal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFileBtnActionPerformed
+        
+    }//GEN-LAST:event_createFileBtnActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -295,6 +318,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JButton backToFatherDirectoryBtn;
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton createDirectoryBtn;
+    private javax.swing.JButton createFileBtn;
     private javax.swing.JScrollPane filesPanel;
     private javax.swing.JTable filesTable;
     private javax.swing.JButton jButton1;
