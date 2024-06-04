@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
 
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 import Controller.FileSystem;
@@ -39,29 +40,38 @@ public class Principal extends javax.swing.JFrame {
         });
         pathLbl.setText(fileSystem.getCurrent().getPath());
 
+        //Habilitar la seleccion de multiples en la tabla
+        filesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
         // Add MouseListener to filesTable to handle row clicks
         filesTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = filesTable.rowAtPoint(e.getPoint());
-                if ("Directory".equals(filesTable.getValueAt(row, 1).toString())){
-                    if (row >= 0) {
-                        String nodeName = filesTable.getValueAt(row, 0).toString();
-                        fileSystem.changeDirectory(nodeName);
-                    }
+                int[] selectedRows = filesTable.getSelectedRows();
+                System.out.println("Selected rows: " + Arrays.toString(selectedRows));
+                // mostrar el tipo del archivo o directorio seleccionado
+                System.out.println(filesTable.getValueAt(row, 1));
+                // imprimir el nombre del archivo o directorio seleccionados
+                for (int i = 0; i < selectedRows.length; i++) {
+                    System.out.println(filesTable.getValueAt(selectedRows[i], 0));
                 }
-                else{
-                    //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
-                    if (e.getButton() == MouseEvent.BUTTON1) {// Left click
-                        // Open file
-                        if (row >= 0) {
-                            String nodeName = filesTable.getValueAt(row, 0).toString();
-                            JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                if ("Directory".equals(filesTable.getValueAt(row, 1).toString())){
+                    //Aquí se maneja cuando se presiona un directorio con click izquierdo o derecho
+                    if(e.getButton() == MouseEvent.BUTTON1){// Left click
+                        // if (row >= 0) {
+                        if(selectedRows.length >= 1){
+                            // String nodeName = filesTable.getValueAt(row, 0).toString();
+                            // fileSystem.changeDirectory(nodeName);
+                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
+                            fileSystem.changeDirectory(nodeName);
                         }
-                        // fileSystem.openFile(nodeName);
-                    } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
-                        if (row >= 0) {
-                            String nodeName = filesTable.getValueAt(row, 0).toString();
+                    }
+                    else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                        // if (row >= 0) {
+                            // String nodeName = filesTable.getValueAt(row, 0).toString();
+                        if(selectedRows.length >= 1){
+                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
                             int result = JOptionPane.showOptionDialog(null,
                                     "Seleccione una opción",
                                     "Opciones",
@@ -72,12 +82,70 @@ public class Principal extends javax.swing.JFrame {
                                     "Eliminar");
 
                             if (result == 0) {
-                                fileSystem.removeFile(nodeName);
+                                // fileSystem.removeDirectory(nodeName);
+                                // updateFilesTable(fileSystem.getCurrent());
+                                // borrar directorios seleccionados
+                                for (int i = 0; i < selectedRows.length; i++) {
+                                    //validar que sea un directorio para borrarlo
+                                    if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
+                                        fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                    }
+                                    else{
+                                        fileSystem.removeFile(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                    }
+                               }
+                                updateFilesTable(fileSystem.getCurrent());
+                            }
+                            else if (result == 3) {
+                                JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
+                            }
+                        }
+                    }
+                }
+                else{
+                    //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
+                    if (e.getButton() == MouseEvent.BUTTON1) {// Left click
+                        // Open file
+                        // if (row >= 0) {
+                            // String nodeName = filesTable.getValueAt(row, 0).toString();
+                        if(selectedRows.length >= 1){
+                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString(); 
+                            JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                        }
+                        // fileSystem.openFile(nodeName);
+                    } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                        if (row >= 0) {
+                            String nodeName = filesTable.getValueAt(row, 0).toString();
+                            System.out.println("nodeName: " + nodeName);
+                            int result = JOptionPane.showOptionDialog(null,
+                                    "Seleccione una opción",
+                                    "Opciones",
+                                    JOptionPane.YES_NO_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    new Object[]{"Eliminar", "Renombrar", "Mover" , "Propiedades"},
+                                    "Eliminar");
+
+                            if (result == 0) {
+                                // fileSystem.removeFile(nodeName);
+                                // updateFilesTable(fileSystem.getCurrent());
+                                // borrar archivos seleccionados
+                                for (int i = 0; i < selectedRows.length; i++) {
+                                    // validar que sea un archivo para borrarlo
+                                    if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                        fileSystem.removeFile(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                    }
+                                    else{
+                                        fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                    }
+                                }
                                 updateFilesTable(fileSystem.getCurrent());
                             }
                             else if (result == 3) {
                                 JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
                             }
+                            //si selecciona varios archivos, se puede mover o eliminar varios
+
 
                         }
                         // fileSystem.removeFile(nodeName);
