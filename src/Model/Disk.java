@@ -51,29 +51,33 @@ public class Disk {
         return freeSize;
     }
 
-    public int readFile(int pSectorId) {
+    public String readFile(int pSectorId) {
         Sector sector = sectors.get(pSectorId);
         if (sector != null) {
             System.out.println(sector.getAllContent());
-            return 1;
+            return sector.getAllContent();
         }
-        return -1;
+        return "sector not found";
     }
 
-    public void newFile(String pName, String pContent) {
+    public int newFile(String pName, String pContent) {
+        int sectorId = -1;
         Sector sector;
         Sector previousSector = null;
 
-        // if (pContent.length() > getFreeSize()) {
-        //     System.out.println("No hay suficiente espacio en disco para guardar el archivo " + pName + ".");
-        //     System.out.println("Espacio libre: " + getFreeSize() + " bytes.");
-        //     System.out.println("Tamaño del archivo: " + pContent.length() + " bytes.");
-        //     return;
-        // }
+        if (pContent.length() > getFreeSize()) {
+            System.out.println("No hay suficiente espacio en disco para guardar el archivo " + pName + ".");
+            System.out.println("Espacio libre: " + getFreeSize() + " bytes.");
+            System.out.println("Tamaño del archivo: " + pContent.length() + " bytes.");
+            return -1;
+        }
 
         for (int i = 0; i < sectors.size(); i++) {
             sector = sectors.get(i);
             if (sector.getContent().equals("")) {
+                if (sectorId == -1) {
+                    sectorId = i;
+                }
                 if (previousSector != null) {
                     previousSector.setNext(sector);
                 }
@@ -89,10 +93,19 @@ public class Disk {
                 }
             }
         }
+        return sectorId;
+    }
 
-        if (pContent.length() > 0) {
-            System.out.println("File " + pName + " is too big for the disk.");
+    public boolean deleteFile(int startSectorId) {
+        Sector sector = sectors.get(startSectorId);
+        Sector nextSector = sector.getNext();
+        sector.cleanSector();
+        while (nextSector != null) {
+            sector = nextSector;
+            nextSector = sector.getNext();
+            sector.cleanSector();
         }
+        return false;
     }
 
     public String toString() {

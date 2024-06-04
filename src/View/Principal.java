@@ -52,6 +52,35 @@ public class Principal extends javax.swing.JFrame {
                 }
                 else{
                     //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
+                    if (e.getButton() == MouseEvent.BUTTON1) {// Left click
+                        // Open file
+                        if (row >= 0) {
+                            String nodeName = filesTable.getValueAt(row, 0).toString();
+                            JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                        }
+                        // fileSystem.openFile(nodeName);
+                    } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                        if (row >= 0) {
+                            String nodeName = filesTable.getValueAt(row, 0).toString();
+                            // un joption pane con varias opciones : eliminar, renombrar, mover
+                            // JOptionPane.showOptionDialog(padre, mensaje, titulo, tipo de seleccion, tipo de mensaje, icono, opciones, valor inicial);
+                            int result = JOptionPane.showOptionDialog(null,
+                                    "Seleccione una opción",
+                                    "Opciones",
+                                    JOptionPane.YES_NO_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    new Object[]{"Eliminar", "Renombrar", "Mover"},
+                                    "Eliminar");
+
+                            if (result == 0) {
+                                fileSystem.removeFile(nodeName);
+                                updateFilesTable(fileSystem.getCurrent());
+                            }
+                            
+                        }
+                        // fileSystem.removeFile(nodeName);
+                    }
                 }
             }
         });

@@ -20,15 +20,19 @@ public class FileSystem {
         support = new PropertyChangeSupport(this);
         disk = new Disk(pSectorsQuantity, pSizeSector);
         
-        disk.newFile("primerArchivo.txt", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        disk.getSectors().get(2).cleanSector();
-        disk.getSectors().get(4).cleanSector();
-        disk.getSectors().get(6).cleanSector();
-        disk.newFile("segundoArchivo.txt", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        createFile("archivo1.txt", "xxxxxxxxxxxx");
+        createFile("archivo2.txt", "yyyyyyyyyyyy");
+        createFile("archivo3.txt", "zzzzzzzzzzzz");
+        // disk.getSectors().get(2).cleanSector();
+        // disk.getSectors().get(4).cleanSector();
+        // disk.getSectors().get(6).cleanSector();
+        // disk.newFile("segundoArchivo.txt", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        // System.out.println(disk.toString());
+        // System.out.println("------------------------");
+        // disk.readFile(0);
+        // disk.readFile(2);
+        removeFile("primerArchivo");
         System.out.println(disk.toString());
-        System.out.println("------------------------");
-        disk.readFile(0);
-        disk.readFile(2);
     }
 
     public Directory getRoot() {
@@ -79,9 +83,66 @@ public class FileSystem {
         current.removeChild(name);
     }
     
-    public void createFile(String name) {
-        current.addChild(new File(name, current.getPath() + name, current));
+    public boolean createFile(String name, String content) {
+        int startSector = disk.newFile(name, content);
+        if (fileExists(name)) {
+            System.out.println("File already exists");
+            return false;
+        }
+        if (startSector == -1) {
+            System.out.println("Not enough space");
+            return false;
+        }
+
+        current.addChild(new File(name, current.getPath() + name + "/", current, startSector));
+        System.out.println(disk.toString());
+        return true;
     }
+
+    public boolean fileExists(String name) {
+        Node[] children = current.getChildren();
+        for (int i = 0; i < children.length; i++) {
+            Node node = children[i];
+            if (node.getName().equals(name) && node instanceof File) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String readFile(String name) {
+        File file = null;
+        for (Node node : current.getChildren()) {
+            if (node.getName().equals(name) && node instanceof File) {
+                file = (File) node;
+                break;
+            }
+        }
+        if (file == null) {
+            return null;
+        }
+        // return disk.readFile(file.getStart());
+        return disk.readFile(file.getStart());
+    }
+
+    public void removeFile(String name) {
+        File file = null;
+        for (Node node : current.getChildren()) {
+            if (node.getName().equals(name) && node instanceof File) {
+                file = (File) node;
+                break;
+            }
+        }
+        if (file == null) {
+            return;
+        }
+        
+        disk.deleteFile(file.getStart());
+        current.removeChild(name);
+        System.out.println(disk.toString());
+    }
+
+
 
     public void remove(String name) {
         current.removeChild(name);
