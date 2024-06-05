@@ -7,6 +7,7 @@ package View;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.JOptionPane;
@@ -15,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import Controller.FileSystem;
 import Model.Directory;
+import Model.File;
 
 /**
  *
@@ -210,7 +212,7 @@ public class Principal extends javax.swing.JFrame {
         backToFatherDirectoryBtn = new javax.swing.JButton();
         pathLbl = new javax.swing.JLabel();
         searchTextBox = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        search = new javax.swing.JButton();
         lowPanel = new javax.swing.JPanel();
         buttonsPanel = new javax.swing.JPanel();
         createDirectoryBtn = new javax.swing.JButton();
@@ -227,10 +229,10 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Buscar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        search.setText("Buscar");
+        search.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                searchActionPerformed(evt);
             }
         });
 
@@ -246,7 +248,7 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(searchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(search)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         toolsPanelLayout.setVerticalGroup(
@@ -257,7 +259,7 @@ public class Principal extends javax.swing.JFrame {
                     .addComponent(backToFatherDirectoryBtn)
                     .addComponent(pathLbl)
                     .addComponent(searchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(search))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -368,9 +370,37 @@ public class Principal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    // function to search files and directories
+    private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
+        String search = searchTextBox.getText();
+        System.out.println("Searching for: " + search);
+        // search for the file or directory
+        ArrayList<File> files = fileSystem.searchFile(search);
+        ArrayList<Directory> directories = fileSystem.searchDirectory(search);
+        // show the results
+        if(files.size() > 0 || directories.size() > 0){
+            // show the results in a table
+            String[] columnNames = {"Name", "Type"};
+            Object[][] data = new Object[files.size() + directories.size()][2];
+            int i = 0;
+            for (File file : files) {
+                data[i][0] = file.getName();
+                data[i][1] = "File";
+                i++;
+            }
+            for (Directory directory : directories) {
+                data[i][0] = directory.getName();
+                data[i][1] = "Directory";
+                i++;
+            }
+            DefaultTableModel model = new DefaultTableModel(data, columnNames);
+            filesTable.setModel(model);
+            
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+        }
+    }//GEN-LAST:event_searchActionPerformed
 
     private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//
         //input dialog para el nombre del archivo
@@ -450,7 +480,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JButton createFileBtn;
     private javax.swing.JScrollPane filesPanel;
     private javax.swing.JTable filesTable;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton search;
     private javax.swing.JPanel lowPanel;
     private javax.swing.JLabel pathLbl;
     private javax.swing.JTextField searchTextBox;

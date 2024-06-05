@@ -2,6 +2,8 @@ package Controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import Model.Directory;
 import Model.Disk;
@@ -172,5 +174,33 @@ public class FileSystem {
 
     public void removePropertyChangeListener(PropertyChangeListener pcl) {
         support.removePropertyChangeListener(pcl);
+    }
+
+    // Funtion what search a files in the disk
+    public ArrayList<File> searchFile(String name) {
+        ArrayList<File> files = new ArrayList<>();
+        for (Node node : root.getChildren()) {
+            if (node instanceof File) {
+                File file = (File) node;
+                if (file.getName().contains(name)) {
+                    files.add(file);
+                }
+            }
+        }
+        return files;
+    }
+
+    // Funtion what search a directory in the disk
+    public ArrayList<Directory> searchDirectory(String name) {
+        ArrayList<Directory> directories = new ArrayList<>();
+        for (Node node : root.getChildren()) {
+            if (node instanceof Directory) {
+                Directory directory = (Directory) node;
+                if (directory.getName().contains(name)) {
+                    directories.add(directory);
+                }
+            }
+        }
+        return directories;
     }
 }
