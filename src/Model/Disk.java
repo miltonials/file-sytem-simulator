@@ -96,6 +96,68 @@ public class Disk {
         return sectorId;
     }
 
+    public int modifyFile(int startSectorId, String pContent) {
+        int sectorId = -1;
+        Sector sector =sectors.get(startSectorId);
+        Sector previousSector = null;
+        int freeSpace = getFreeSize() + (sector.getSectorsCount() * sector.getSize());
+
+
+        if (pContent.length() > freeSpace) {
+            System.out.println("No hay suficiente espacio en disco para modificar el archivo.");
+            System.out.println("Espacio total disponible para el archivo: " + freeSpace + " bytes.");
+            System.out.println("Tamaño del contenido modificado: " + pContent.length() + " bytes.");
+            return -1;
+        }
+
+        deleteFile(startSectorId);
+
+        for (int i = startSectorId; i < sectors.size(); i++) {
+            sector = sectors.get(i);
+            if (sector.getContent().equals("")) {
+                if (sectorId == -1) {
+                    sectorId = i;
+                }
+                if (previousSector != null) {
+                    previousSector.setNext(sector);
+                }
+                if (pContent.length() <= sector.getSize()) {
+                    sector.setContent(pContent);
+                    pContent = "";
+                    return sectorId;
+                }
+                else {
+                    sector.setContent(pContent.substring(0, sector.getSize()));
+                    pContent = pContent.substring(sector.getSize());
+                    previousSector = sector;
+                }
+            }
+        }
+
+        for (int i = 0; i < startSectorId; i++) {
+            sector = sectors.get(i);
+            if (sector.getContent().equals("")) {
+                if (sectorId == -1) {
+                    sectorId = i;
+                }
+                if (previousSector != null) {
+                    previousSector.setNext(sector);
+                }
+                if (pContent.length() <= sector.getSize()) {
+                    sector.setContent(pContent);
+                    pContent = "";
+                    break;
+                }
+                else {
+                    sector.setContent(pContent.substring(0, sector.getSize()));
+                    pContent = pContent.substring(sector.getSize());
+                    previousSector = sector;
+                }
+            }
+        }
+        return sectorId;
+    }
+
     public boolean deleteFile(int startSectorId) {
         Sector sector = sectors.get(startSectorId);
         Sector nextSector = sector.getNext();

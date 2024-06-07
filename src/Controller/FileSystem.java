@@ -2,7 +2,6 @@ package Controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import Model.Directory;
@@ -125,6 +124,23 @@ public class FileSystem {
         }
         // return disk.readFile(file.getStart());
         return disk.readFile(file.getStart());
+    }
+
+    public void modifyFile(String name, String content) {
+        File file = null;
+        for (Node node : current.getChildren()) {
+            if (node.getName().equals(name) && node instanceof File) {
+                file = (File) node;
+                break;
+            }
+        }
+        if (file == null) {
+            return;
+        }
+
+        disk.modifyFile(file.getStart(), content);
+        // file.setStart(disk.newFile(name, content));
+        System.out.println(disk.toString());
     }
 
     public void removeFile(String name) {

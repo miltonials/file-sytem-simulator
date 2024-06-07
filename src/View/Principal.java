@@ -80,7 +80,7 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.YES_NO_CANCEL_OPTION,
                                     JOptionPane.QUESTION_MESSAGE,
                                     null,
-                                    new Object[]{"Eliminar", "Renombrar", "Mover" , "Propiedades"},
+                                    new Object[]{"Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
                                     "Eliminar");
 
                             if (result == 0) {
@@ -99,6 +99,11 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                             }
                             else if (result == 3) {
+                                String fileContent = fileSystem.readFile(nodeName);
+                                String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
+                                fileSystem.modifyFile(nodeName, newContent);
+                            }
+                            else if (result == 4) {
                                 JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
                             }
                         }
@@ -125,9 +130,8 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.YES_NO_CANCEL_OPTION,
                                     JOptionPane.QUESTION_MESSAGE,
                                     null,
-                                    new Object[]{"Eliminar", "Renombrar", "Mover" , "Propiedades"},
+                                    new Object[]{"Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
                                     "Eliminar");
-
                             if (result == 0) {
                                 // fileSystem.removeFile(nodeName);
                                 // updateFilesTable(fileSystem.getCurrent());
@@ -144,6 +148,11 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                             }
                             else if (result == 3) {
+                                String fileContent = fileSystem.readFile(nodeName);
+                                String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
+                                fileSystem.modifyFile(nodeName, newContent);
+                            }
+                            else if (result == 4) {
                                 JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
                             }
                             //si selecciona varios archivos, se puede mover o eliminar varios

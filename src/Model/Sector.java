@@ -49,6 +49,13 @@ public class Sector {
         return next;
     }
 
+    public int getSectorsCount() {
+        if (next == null) {
+            return 1;
+        }
+        return 1 + next.getSectorsCount();
+    }
+
     public void setContent(String pContent) {
         this.content = pContent;
     }
