@@ -6,12 +6,14 @@ public class Sector {
     private int size;
     private String content;
     private Sector next;
+    private boolean isFree;
 
     public Sector(int pSize) {
         this.sectorId = id++;
         this.size = pSize;
         this.content = "";
         this.next = null;
+        this.isFree = true;
     }
 
     public int getSectorId() {
@@ -23,6 +25,7 @@ public class Sector {
     }
 
     public String getContent() {
+        isFree = false;
         return content;
     }
 
@@ -40,6 +43,10 @@ public class Sector {
             return -1;
         }
         return next.getSectorId();
+    }
+
+    public boolean isFree() {
+        return isFree;
     }
 
     public Sector getNext() {
@@ -67,6 +74,7 @@ public class Sector {
     public void cleanSector() {
         this.content = "";
         this.next = null;
+        this.isFree = true;
     }
 
 }

@@ -24,14 +24,6 @@ public class FileSystem {
         createFile("archivo1.txt", "xxxxxxxxxxxx");
         createFile("archivo2.txt", "yyyyyyyyyyyy");
         createFile("archivo3.txt", "zzzzzzzzzzzz");
-        // disk.getSectors().get(2).cleanSector();
-        // disk.getSectors().get(4).cleanSector();
-        // disk.getSectors().get(6).cleanSector();
-        // disk.newFile("segundoArchivo.txt", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        // System.out.println(disk.toString());
-        // System.out.println("------------------------");
-        // disk.readFile(0);
-        // disk.readFile(2);
         removeFile("primerArchivo");
         System.out.println(disk.toString());
     }
@@ -42,6 +34,37 @@ public class FileSystem {
 
     public Directory getCurrent() {
         return current;
+    }
+
+    private Node findNode(String name) {
+        Node node = null;
+        for (Node n : current.getChildren()) {
+            if (n.getName().equals(name)) {
+                node = n;
+                break;
+            }
+        }
+        return node;
+    }
+
+    private File findFile(String name) {
+        Node node = findNode(name);
+
+        if (node == null || !(node instanceof File)) {
+            return null;
+        }
+
+        return (File) node;
+    }
+
+    private Directory findDirectory(String name) {
+        Node node = findNode(name);
+
+        if (node == null || !(node instanceof Directory)) {
+            return null;
+        }
+
+        return (Directory) node;
     }
 
     public void setCurrent(Directory current) {
@@ -56,11 +79,11 @@ public class FileSystem {
                 setCurrent(current.getParent());
             }
         } else {
-            for (Node node : current.getChildren()) {
-                if (node.getName().equals(name) && node instanceof Directory) {
-                    setCurrent((Directory) node);
-                    break;
-                }
+            Directory dir = findDirectory(name);
+            if (dir != null) {
+                setCurrent(dir);
+            } else {
+                System.out.println("Directory not found");
             }
         }
     }
@@ -70,13 +93,12 @@ public class FileSystem {
     }
     
     public boolean directoryExists(String name) {
-        Node[] children = current.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            Node node = children[i];
-            if (node.getName().equals(name) && node instanceof Directory) {
-                return true;
-            }
+        Directory directory = findDirectory(name);
+
+        if (directory != null) {
+            return true;
         }
+
         return false;
     }
     
@@ -101,56 +123,36 @@ public class FileSystem {
     }
 
     public boolean fileExists(String name) {
-        Node[] children = current.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            Node node = children[i];
-            if (node.getName().equals(name) && node instanceof File) {
-                return true;
-            }
+        File file = findFile(name);
+        if (file != null) {
+            return true;
         }
         return false;
     }
 
     public String readFile(String name) {
-        File file = null;
-        for (Node node : current.getChildren()) {
-            if (node.getName().equals(name) && node instanceof File) {
-                file = (File) node;
-                break;
-            }
-        }
+        File file = findFile(name);
+
         if (file == null) {
             return null;
         }
-        // return disk.readFile(file.getStart());
+
         return disk.readFile(file.getStart());
     }
 
     public void modifyFile(String name, String content) {
-        File file = null;
-        for (Node node : current.getChildren()) {
-            if (node.getName().equals(name) && node instanceof File) {
-                file = (File) node;
-                break;
-            }
-        }
+        File file = findFile(name);
         if (file == null) {
             return;
         }
-
         disk.modifyFile(file.getStart(), content);
         // file.setStart(disk.newFile(name, content));
         System.out.println(disk.toString());
     }
 
     public void removeFile(String name) {
-        File file = null;
-        for (Node node : current.getChildren()) {
-            if (node.getName().equals(name) && node instanceof File) {
-                file = (File) node;
-                break;
-            }
-        }
+        File file = findFile(name);
+
         if (file == null) {
             return;
         }
@@ -161,14 +163,9 @@ public class FileSystem {
     }
 
     public String getFileProperties(String name) {
-        File file = null;
-        String properties = "";
-        for (Node node : current.getChildren()) {
-            if (node.getName().equals(name) && node instanceof File) {
-                file = (File) node;
-                break;
-            }
-        }
+        File file = findFile(name);
+        String properties;
+
         if (file == null) {
             return null;
         }
