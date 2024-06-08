@@ -189,7 +189,7 @@ public class FileSystem {
         support.removePropertyChangeListener(pcl);
     }
 
-    // Funtion what search a files in the disk
+    // funcion que busca un archivo en el disco, si lo encuentra lo retorna, debe buscar en todos los directorios del disco
     public ArrayList<File> searchFile(String name) {
         ArrayList<File> files = new ArrayList<>();
         for (Node node : root.getChildren()) {
@@ -198,12 +198,15 @@ public class FileSystem {
                 if (file.getName().contains(name)) {
                     files.add(file);
                 }
+            } else if (node instanceof Directory) {
+                Directory directory = (Directory) node;
+                files.addAll(directory.searchFile(name));
             }
         }
         return files;
     }
 
-    // Funtion what search a directory in the disk
+    // funcion que busca un directorio en el disco, si lo encuentra lo retorna, debe buscar en todos los directorios del disco
     public ArrayList<Directory> searchDirectory(String name) {
         ArrayList<Directory> directories = new ArrayList<>();
         for (Node node : root.getChildren()) {
@@ -212,6 +215,7 @@ public class FileSystem {
                 if (directory.getName().contains(name)) {
                     directories.add(directory);
                 }
+                directories.addAll(directory.searchDirectory(name));
             }
         }
         return directories;

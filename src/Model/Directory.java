@@ -66,6 +66,26 @@ public class Directory extends Node {
         return Collections.enumeration(children);
     }
 
+    public Collection<? extends File> searchFile(String name) {
+        ArrayList<File> files = new ArrayList<>();
+        for (Node node : children) {
+            if (node instanceof File && node.getName().equals(name)) {
+                files.add((File) node);
+            }
+        }
+        return files;
+    }
+
+    public Collection<? extends Directory> searchDirectory(String name) {
+        ArrayList<Directory> directories = new ArrayList<>();
+        for (Node node : children) {
+            if (node instanceof Directory && node.getName().equals(name)) {
+                directories.add((Directory) node);
+            }
+        }
+        return directories;
+    }
+
     
 
 }
