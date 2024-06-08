@@ -96,11 +96,16 @@ public class Disk {
         return sectorId;
     }
 
+    public int getFreeSpaceForFile(int sectorId) {
+        Sector sector =sectors.get(sectorId);
+        return getFreeSize() + (sector.getSectorsCount() * sector.getSize());
+    }
+
     public int modifyFile(int startSectorId, String pContent) {
-        int sectorId = -1;
         Sector sector =sectors.get(startSectorId);
+        int sectorId = -1;
         Sector previousSector = null;
-        int freeSpace = getFreeSize() + (sector.getSectorsCount() * sector.getSize());
+        int freeSpace = getFreeSpaceForFile(sectorId);
 
 
         if (pContent.length() > freeSpace) {
