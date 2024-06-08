@@ -1,7 +1,9 @@
 package Model;
 import java.util.Date;
+import java.util.Enumeration;
+import javax.swing.tree.TreeNode;
 
-public class Node {
+public class Node implements TreeNode{
     private String name;
     private String path;
     private Directory parent;
@@ -14,6 +16,7 @@ public class Node {
         this.created = new Date().toString();
     }
     
+    @Override
     public Directory getParent() {
         return parent;
     }
@@ -45,5 +48,39 @@ public class Node {
     public void setPath(String path) {
         this.path = path;
     }
+
+    @Override
+    public TreeNode getChildAt(int childIndex) {
+        return null;
+    }
+
+    @Override
+    public int getChildCount() {
+       return -1;
+    }
+
+    @Override
+    public int getIndex(TreeNode node) {
+        return -1;
+    }
+
+    @Override
+    public boolean getAllowsChildren() {
+        return false;
+    }
+
+    @Override
+    public boolean isLeaf() {
+        return true;
+    }
+
+    @Override
+    public Enumeration<? extends TreeNode> children() {
+        return null;
+    }
+    public String toString(){
+        return name;
+    }
+    
     
 }

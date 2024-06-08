@@ -2,6 +2,8 @@ package Model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 
 public class Directory extends Node {
     private Collection<Node> children;
@@ -44,4 +46,26 @@ public class Directory extends Node {
     public Node[] getChildren() {
         return children.toArray(new Node[children.size()]);
     }
+    public int getChildCount() {
+        return children.size();
+    }
+    public Node getChildAt(int index) {
+        return (Node) children.toArray()[index];
+    }
+    public boolean isLeaf() {
+        return false;
+    }
+    public boolean getAllowsChildren() {
+        return true;
+    }
+    public int getIndex(Node node) {
+        return new ArrayList<>(children).indexOf(node);
+    }
+
+    public Enumeration<Node> children() {
+        return Collections.enumeration(children);
+    }
+
+    
+
 }
