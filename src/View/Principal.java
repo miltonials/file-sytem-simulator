@@ -13,6 +13,9 @@ import java.util.Arrays;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
 import Controller.FileSystem;
 import Model.Directory;
@@ -24,6 +27,7 @@ import Model.File;
  */
 public class Principal extends javax.swing.JFrame {
     private FileSystem fileSystem;
+    private DefaultTreeModel treeModel;
     /**
      * Creates new form Principal
      */
@@ -38,14 +42,72 @@ public class Principal extends javax.swing.JFrame {
                 Directory currentDirectory = (Directory) evt.getNewValue();
                 pathLbl.setText(currentDirectory.getPath());
                 updateFilesTable(currentDirectory);
+                treeModel.reload();
             }
         });
+
+        
+        this.treeModel = new DefaultTreeModel(fileSystem.getRoot());
+        tree.setModel(treeModel);
+
+
         pathLbl.setText(fileSystem.getCurrent().getPath());
 
         //Habilitar la seleccion de multiples en la tabla
         filesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            int row = tree.getRowForLocation(e.getX(), e.getY());
+            if (row != -1) {
+                tree.setSelectionRow(row);
+                File selectedNode = (File) tree.getLastSelectedPathComponent();
+                
+                if (selectedNode instanceof File) {
+                // Perform operations with selected file
+                //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
+                if (e.getButton() == MouseEvent.BUTTON1) {// Left click
 
-        // Add MouseListener to filesTable to handle row clicks
+                    String nodeName = selectedNode.getName();
+                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                    // fileSystem.openFile(nodeName);
+                } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                    if (row >= 0) {
+                    String nodeName = selectedNode.getName();
+                    System.out.println("nodeName: " + nodeName);
+                    int result = JOptionPane.showOptionDialog(null,
+                        "Seleccione una opción",
+                        "Opciones",
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{"Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
+                        "Eliminar");
+                    if (result == 0) {
+                        fileSystem.removeFile(nodeName);
+                        updateFilesTable(fileSystem.getCurrent());
+                        treeModel.reload();
+                    }
+                    else if (result == 3) {
+                        String fileContent = fileSystem.readFile(nodeName);
+                        String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
+                        fileSystem.modifyFile(nodeName, newContent);
+                    }
+                    else if (result == 4) {
+                        JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
+                    }
+                    //si selecciona varios archivos, se puede mover o eliminar varios
+
+
+                    }
+                    // fileSystem.removeFile(nodeName);
+                }
+
+                }
+            }
+            }
+        });
+        // Add MouseListener to tree to handle node clicks
         filesTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -97,6 +159,7 @@ public class Principal extends javax.swing.JFrame {
                                     }
                                }
                                 updateFilesTable(fileSystem.getCurrent());
+                                treeModel.reload();
                             }
                             else if (result == 3) {
                                 String fileContent = fileSystem.readFile(nodeName);
@@ -146,6 +209,7 @@ public class Principal extends javax.swing.JFrame {
                                     }
                                 }
                                 updateFilesTable(fileSystem.getCurrent());
+                                treeModel.reload();
                             }
                             else if (result == 3) {
                                 String fileContent = fileSystem.readFile(nodeName);
@@ -166,6 +230,7 @@ public class Principal extends javax.swing.JFrame {
         });
 
         updateFilesTable(fileSystem.getCurrent());
+        treeModel.reload();
     }
     
     private void updateFilesTable(Directory directory) {
@@ -195,13 +260,16 @@ public class Principal extends javax.swing.JFrame {
                 if (result == JOptionPane.YES_OPTION) {
                     fileSystem.removeDirectory(newDirectoryName);
                     fileSystem.createDirectory(newDirectoryName);
+                    
                 }
             } else {
                 //joption pane de texto
                 fileSystem.createDirectory(newDirectoryName);
+                
             }
             
             updateFilesTable(fileSystem.getCurrent());
+            treeModel.reload();
         }
         else {
             JOptionPane.showMessageDialog(this, "El nombre del directorio no puede estar vacío.");
@@ -226,6 +294,8 @@ public class Principal extends javax.swing.JFrame {
         buttonsPanel = new javax.swing.JPanel();
         createDirectoryBtn = new javax.swing.JButton();
         createFileBtn = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tree = new javax.swing.JTree();
         filesPanel = new javax.swing.JScrollPane();
         filesTable = new javax.swing.JTable();
 
@@ -286,6 +356,8 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
+        jScrollPane1.setViewportView(tree);
+
         javax.swing.GroupLayout buttonsPanelLayout = new javax.swing.GroupLayout(buttonsPanel);
         buttonsPanel.setLayout(buttonsPanelLayout);
         buttonsPanelLayout.setHorizontalGroup(
@@ -294,7 +366,8 @@ public class Principal extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(createDirectoryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(createFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)))
+                    .addComponent(createFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addComponent(jScrollPane1)
         );
         buttonsPanelLayout.setVerticalGroup(
             buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -303,7 +376,9 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(createDirectoryBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(createFileBtn)
-                .addContainerGap(386, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         filesTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -317,6 +392,7 @@ public class Principal extends javax.swing.JFrame {
                 "Nombre", "Tamaño", "Extensión"
             }
         ) {
+            @SuppressWarnings("rawtypes")
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.Float.class, java.lang.String.class
             };
@@ -324,6 +400,7 @@ public class Principal extends javax.swing.JFrame {
                 false, false, false
             };
 
+            @SuppressWarnings("rawtypes")
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
@@ -339,25 +416,21 @@ public class Principal extends javax.swing.JFrame {
         lowPanelLayout.setHorizontalGroup(
             lowPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lowPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(filesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 563, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .addGroup(lowPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(lowPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(578, Short.MAX_VALUE)))
         );
         lowPanelLayout.setVerticalGroup(
             lowPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(lowPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(filesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
-            .addGroup(lowPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(lowPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(buttonsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addContainerGap()))
+                .addGroup(lowPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(lowPanelLayout.createSequentialGroup()
+                        .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(filesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -440,11 +513,12 @@ public class Principal extends javax.swing.JFrame {
             }
             
             updateFilesTable(fileSystem.getCurrent());
+            treeModel.reload();
         }
         else {
             JOptionPane.showMessageDialog(this, "El nombre del archivo no puede estar vacío.");
         }
-    }//GEN-LAST:event_createFileBtnActionPerformed
+    }                                             
 
     
     /**
@@ -481,7 +555,7 @@ public class Principal extends javax.swing.JFrame {
             }
         });
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backToFatherDirectoryBtn;
     private javax.swing.JPanel buttonsPanel;
@@ -489,10 +563,12 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JButton createFileBtn;
     private javax.swing.JScrollPane filesPanel;
     private javax.swing.JTable filesTable;
-    private javax.swing.JButton search;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel lowPanel;
     private javax.swing.JLabel pathLbl;
+    private javax.swing.JButton search;
     private javax.swing.JTextField searchTextBox;
     private javax.swing.JPanel toolsPanel;
+    private javax.swing.JTree tree;
     // End of variables declaration//GEN-END:variables
 }
