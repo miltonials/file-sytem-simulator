@@ -216,4 +216,36 @@ public class FileSystem {
         }
         return directories;
     }
+
+    // mover un archivo de un directorio a otro
+    public void moveFile(String name, String path) {
+        File file = findFile(name);
+        if (file == null) {
+            return;
+        }
+        Directory directory = findDirectory(path);
+        if (directory == null) {
+            return;
+        }
+        file.setParent(directory);
+        file.setPath(directory.getPath() + name + "/");
+        directory.addChild(file);
+        current.removeChild(name);
+    }
+
+    // mover un directorio de un directorio a otro
+    public void moveDirectory(String name, String path) {
+        Directory directory = findDirectory(name);
+        if (directory == null) {
+            return;
+        }
+        Directory newDirectory = findDirectory(path);
+        if (newDirectory == null) {
+            return;
+        }
+        directory.setParent(newDirectory);
+        directory.setPath(newDirectory.getPath() + name + "/");
+        newDirectory.addChild(directory);
+        current.removeChild(name);
+    }
 }

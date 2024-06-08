@@ -88,6 +88,23 @@ public class Principal extends javax.swing.JFrame {
                         updateFilesTable(fileSystem.getCurrent());
                         treeModel.reload();
                     }
+                    else if(result == 2){
+                        //mover archivos
+                        String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el directorio al que desea mover los archivos:");
+                        if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                            if (fileSystem.directoryExists(newDirectoryName)) {
+                                fileSystem.moveFile(nodeName, newDirectoryName);
+                                updateFilesTable(fileSystem.getCurrent());
+                                treeModel.reload();
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, this, "El directorio no existe.", result);
+                            }
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null,this, "El nombre del directorio no puede estar vacío.", result, null);
+                        }
+                    }
                     else if (result == 3) {
                         String fileContent = fileSystem.readFile(nodeName);
                         String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
@@ -210,6 +227,32 @@ public class Principal extends javax.swing.JFrame {
                                 }
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
+                            }
+                            else if(result == 2){
+                                //mover archivos
+                                String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el directorio al que desea mover los archivos:");
+                                if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                    if (fileSystem.directoryExists(newDirectoryName)) {
+                                        // mover archivos seleccionados
+                                        for (int i = 0; i < selectedRows.length; i++) {
+                                            // validar que sea un archivo para moverlo
+                                            if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                                fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                            else{
+                                                fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                        }
+                                        updateFilesTable(fileSystem.getCurrent());
+                                        treeModel.reload();
+                                    }
+                                    else {
+                                        JOptionPane.showMessageDialog(null, this, "El directorio no existe.", result, null);
+                                    }
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null, this, "El nombre del directorio no puede estar vacío.", result, null);
+                                }
                             }
                             else if (result == 3) {
                                 String fileContent = fileSystem.readFile(nodeName);
