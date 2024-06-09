@@ -230,28 +230,20 @@ public class Principal extends javax.swing.JFrame {
                             }
                             else if(result == 2){
                                 //mover archivos
-                                String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el directorio al que desea mover los archivos:");
+                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
                                 if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
-                                    if (fileSystem.directoryExists(newDirectoryName)) {
-                                        // mover archivos seleccionados
-                                        for (int i = 0; i < selectedRows.length; i++) {
-                                            // validar que sea un archivo para moverlo
-                                            if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
-                                                fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                            }
-                                            else{
-                                                fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                            }
-                                        }
+                                    if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                        fileSystem.moveFile(nodeName, newDirectoryName);
                                         updateFilesTable(fileSystem.getCurrent());
                                         treeModel.reload();
+                                        System.out.println("Se movió el archivo");
                                     }
                                     else {
-                                        JOptionPane.showMessageDialog(null, this, "El directorio no existe.", result, null);
+                                        JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
                                     }
                                 }
                                 else {
-                                    JOptionPane.showMessageDialog(null, this, "El nombre del directorio no puede estar vacío.", result, null);
+                                    JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                                 }
                             }
                             else if (result == 3) {

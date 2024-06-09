@@ -223,18 +223,22 @@ public class FileSystem {
 
     // mover un archivo de un directorio a otro
     public void moveFile(String name, String path) {
+        // recorre todo el arbol hasta llegar a la ruta donde se desea mover el archivo
+        Directory directory = getDirectory(path);
+        if (directory == null) {
+            return;
+        }
         File file = findFile(name);
         if (file == null) {
             return;
         }
-        Directory directory = findDirectory(path);
-        if (directory == null) {
-            return;
-        }
+        // se elimina el archivo del directorio actual
+        current.removeChild(name);
+        // se agrega el archivo al nuevo directorio
         file.setParent(directory);
         file.setPath(directory.getPath() + name + "/");
         directory.addChild(file);
-        current.removeChild(name);
+
     }
 
     // mover un directorio de un directorio a otro
@@ -251,5 +255,38 @@ public class FileSystem {
         directory.setPath(newDirectory.getPath() + name + "/");
         newDirectory.addChild(directory);
         current.removeChild(name);
+    }
+    // recorre todo el arbol de directorios y archivos para validar si existe un directorio con el path que se le pasa
+    public boolean directoryExistsRoot(String path) {
+        System.out.println("path: " + path);
+        for (Node node : root.getChildren()) {
+            if (node instanceof Directory) {
+                Directory directory = (Directory) node;
+                if (directory.getPath().equals(path)) {
+                    return true;
+                }
+                if (directory.directoryExists(path, node)) {
+                    return true;
+                }
+            }
+        }
+        return false;    
+       
+    }
+    // retorna el directorio que tiene el path que se le pasa
+    public Directory getDirectory(String path) {
+        for (Node node : root.getChildren()) {
+            if (node instanceof Directory) {
+                Directory directory = (Directory) node;
+                if (directory.getPath().equals(path)) {
+                    return directory;
+                }
+                if (directory.directoryExists(path, node)) {
+                    return directory.getDirectory(path, node);
+                }
+            }
+        }
+        return null;
+        
     }
 }

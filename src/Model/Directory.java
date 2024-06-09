@@ -86,6 +86,40 @@ public class Directory extends Node {
         return directories;
     }
 
+    //verifica si existe un directorio con el path que se le pasa
+    public boolean directoryExists(String path, Node node) {
+        for (Node child : ((Directory) node).children) {
+            if (child instanceof Directory) {
+                Directory directory = (Directory) child;
+                System.out.println("path: " + path);
+                System.out.println("directory.getPath(): " + directory.getPath());
+                if (directory.getPath().equals(path)) {
+                    return true;
+                }
+                if (directory.directoryExists(path, child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
+    public Directory getDirectory(String path, Node node) {
+        for (Node child : ((Directory) node).children) {
+            if (child instanceof Directory) {
+                Directory directory = (Directory) child;
+                if (directory.getPath().equals(path)) {
+                    return directory;
+                }
+                if (directory.directoryExists(path, child)) {
+                    return directory;
+                }
+            }
+        }
+        return null;
+    }
+
     
 
 }
