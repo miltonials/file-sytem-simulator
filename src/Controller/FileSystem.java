@@ -139,6 +139,9 @@ public class FileSystem {
 
         return disk.readFile(file.getStart());
     }
+    public String readFileTree(File file){
+        return disk.readFile(file.getStart());
+    }
 
     public void modifyFile(String name, String content) {
         File file = findFile(name);
