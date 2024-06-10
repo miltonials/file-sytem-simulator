@@ -105,7 +105,7 @@ public class Disk {
         Sector sector =sectors.get(startSectorId);
         int sectorId = -1;
         Sector previousSector = null;
-        int freeSpace = getFreeSpaceForFile(sectorId);
+        int freeSpace = getFreeSpaceForFile(startSectorId);
 
 
         if (pContent.length() > freeSpace) {
