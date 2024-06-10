@@ -13,9 +13,7 @@ import java.util.Arrays;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 
 import Controller.FileSystem;
 import Model.Directory;
@@ -81,14 +79,14 @@ public class Principal extends javax.swing.JFrame {
                         JOptionPane.YES_NO_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[]{"Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
+                        new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
                         "Eliminar");
-                    if (result == 0) {
+                    if (result == 1) {
                         fileSystem.removeFile(nodeName);
                         updateFilesTable(fileSystem.getCurrent());
                         treeModel.reload();
                     }
-                    else if(result == 2){
+                    else if(result == 3){
                         //mover archivos
                         String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el directorio al que desea mover los archivos:");
                         if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
@@ -105,12 +103,12 @@ public class Principal extends javax.swing.JFrame {
                             JOptionPane.showMessageDialog(null,this, "El nombre del directorio no puede estar vacío.", result, null);
                         }
                     }
-                    else if (result == 3) {
+                    else if (result == 4) {
                         String fileContent = fileSystem.readFile(nodeName);
                         String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
                         fileSystem.modifyFile(nodeName, newContent);
                     }
-                    else if (result == 4) {
+                    else if (result == 5) {
                         JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
                     }
                     //si selecciona varios archivos, se puede mover o eliminar varios
@@ -159,10 +157,40 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.YES_NO_CANCEL_OPTION,
                                     JOptionPane.QUESTION_MESSAGE,
                                     null,
-                                    new Object[]{"Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
+                                    new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
                                     "Eliminar");
 
                             if (result == 0) {
+                                //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
+                                int copyOption = JOptionPane.showOptionDialog(null,
+                                    "Seleccione una opción",
+                                    "Opciones",
+                                    JOptionPane.YES_NO_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    new Object[]{"Ruta virtual a virtual", "Ruta virtual a real", "Ruta real a virtual"},
+                                    "Ruta virtual a virtual");
+
+                                if (copyOption == 0) {
+                                    System.out.println("Copiando directorio a la misma ruta");
+                                }
+                                else if (copyOption == 1) {
+                                    System.out.println("Copiando directorio a una ruta real");
+                                    //abrir ventana que permita seleccionar una ruta al usuario
+                                    //new javax.swing.JFileChooser().showOpenDialog(null);
+                                    javax.swing.JFileChooser path = new javax.swing.JFileChooser();
+                                    path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+                                    path.showOpenDialog(null);
+
+                                    String copyPath = path.getSelectedFile().getAbsolutePath();
+                                    fileSystem.copyDirectoryToRealPath(nodeName, copyPath);
+                                    System.out.println("Path: " + copyPath);
+                                }
+                                else if (copyOption == 2) {
+                                    System.out.println("Copiando directorio a una ruta virtual");
+                                }
+                            }
+                            else if (result == 1) {
                                 // fileSystem.removeDirectory(nodeName);
                                 // updateFilesTable(fileSystem.getCurrent());
                                 // borrar directorios seleccionados
@@ -178,12 +206,12 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
                             }
-                            else if (result == 3) {
+                            else if (result == 4) {
                                 String fileContent = fileSystem.readFile(nodeName);
                                 String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
                                 fileSystem.modifyFile(nodeName, newContent);
                             }
-                            else if (result == 4) {
+                            else if (result == 5) {
                                 JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
                             }
                         }
@@ -210,9 +238,39 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.YES_NO_CANCEL_OPTION,
                                     JOptionPane.QUESTION_MESSAGE,
                                     null,
-                                    new Object[]{"Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
+                                    new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
                                     "Eliminar");
                             if (result == 0) {
+                                //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
+                                int copyOption = JOptionPane.showOptionDialog(null,
+                                    "Seleccione una opción",
+                                    "Opciones",
+                                    JOptionPane.YES_NO_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    new Object[]{"Ruta virtual a virtual", "Ruta virtual a real", "Ruta real a virtual"},
+                                    "Ruta virtual a virtual");
+
+                                if (copyOption == 0) {
+                                    System.out.println("Copiando archivo a la misma ruta");
+                                }
+                                else if (copyOption == 1) {
+                                    System.out.println("Copiando archivo a una ruta real");
+                                    //abrir ventana que permita seleccionar una ruta al usuario
+                                    //new javax.swing.JFileChooser().showOpenDialog(null);
+                                    javax.swing.JFileChooser path = new javax.swing.JFileChooser();
+                                    path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+                                    path.showOpenDialog(null);
+
+                                    String copyPath = path.getSelectedFile().getAbsolutePath();
+                                    fileSystem.copyFileToRealPath(nodeName, copyPath);
+                                    System.out.println("Path: " + copyPath);
+                                }
+                                else if (copyOption == 2) {
+                                    System.out.println("Copiando archivo a una ruta virtual");
+                                }
+                            }
+                            else if (result == 1) {
                                 // fileSystem.removeFile(nodeName);
                                 // updateFilesTable(fileSystem.getCurrent());
                                 // borrar archivos seleccionados
@@ -228,7 +286,7 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
                             }
-                            else if(result == 2){
+                            else if(result == 3){
                                 //mover archivos
                                 String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
                                 if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
@@ -246,12 +304,12 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                                 }
                             }
-                            else if (result == 3) {
+                            else if (result == 4) {
                                 String fileContent = fileSystem.readFile(nodeName);
                                 String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
                                 fileSystem.modifyFile(nodeName, newContent);
                             }
-                            else if (result == 4) {
+                            else if (result == 5) {
                                 JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
                             }
                             //si selecciona varios archivos, se puede mover o eliminar varios

@@ -8,6 +8,7 @@ import Model.Directory;
 import Model.Disk;
 import Model.File;
 import Model.Node;
+import utils.FilesManagement;
 
 public class FileSystem {
     private final Directory root;
@@ -287,6 +288,40 @@ public class FileSystem {
             }
         }
         return null;
+    }
+
+    public void copyFileToRealPath(String name, String path) {
+        System.out.println("Copiando archivo" + name + " a " + path);
+        File file = findFile(name);
+        if (file == null) {
+            return;
+        }
         
+        FilesManagement.crearArchivo(path + "\\" + name);
+        FilesManagement.escribirArchivo(path + "\\" + name, disk.readFile(file.getStart()));
+    }
+
+    public void copyDirectoryToRealPath(String name, String path) {
+        System.out.println("Copiando " + name + " a " + path);
+        Directory directory = findDirectory(name);
+        if (directory == null) {
+            return;
+        }
+        FilesManagement.newFolder(path + "\\" + name);
+        for (Node node : directory.getChildren()) {
+            if (node instanceof File) {
+                File file = (File) node;
+                String filename = file.getName().replace("/", "");
+                FilesManagement.crearArchivo(path + "\\" + name + "\\" + filename);
+                FilesManagement.escribirArchivo(path + "\\" + name + "\\" + filename, disk.readFile(file.getStart()));
+            } else if (node instanceof Directory) {
+                Directory dir = (Directory) node;
+                String folderName = dir.getName().replace("/", "");
+                // FilesManagement.newFolder(path + "\\" + name + "\\" + folderName);
+                setCurrent(directory);
+                copyDirectoryToRealPath(folderName, path + "\\" + name);
+                setCurrent(directory.getParent());
+            }
+        }
     }
 }
