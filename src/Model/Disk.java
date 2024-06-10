@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class Disk {
     private ArrayList<Sector> sectors;
-    private ArrayList<File> files;
+    private ArrayList<FileImplementation> files;
     private int size;
     private int freeSize;
 

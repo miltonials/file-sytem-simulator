@@ -1,10 +1,10 @@
 package Model;
 
-public class File extends Node{
+public class FileImplementation extends Node{
     private int start;
     private String created;
 
-    public File(String name, String path, Directory parent, int start) {
+    public FileImplementation(String name, String path, Directory parent, int start) {
         super(name, path, parent);
         this.start = start;
     }
