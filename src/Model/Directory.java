@@ -66,11 +66,11 @@ public class Directory extends Node {
         return Collections.enumeration(children);
     }
 
-    public Collection<? extends FileImplementation> searchFile(String name) {
-        ArrayList<FileImplementation> files = new ArrayList<>();
+    public Collection<? extends File> searchFile(String name) {
+        ArrayList<File> files = new ArrayList<>();
         for (Node node : children) {
-            if (node instanceof FileImplementation && node.getName().equals(name)) {
-                files.add((FileImplementation) node);
+            if (node instanceof File && node.getName().equals(name)) {
+                files.add((File) node);
             }
         }
         return files;

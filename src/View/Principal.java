@@ -17,7 +17,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import Controller.FileSystem;
 import Model.Directory;
-import Model.FileImplementation;
+import Model.File;
 import Model.Node;
 
 /**
@@ -62,12 +62,12 @@ public class Principal extends javax.swing.JFrame {
                 tree.setSelectionRow(row);
                 Node selectedNode = (Node) tree.getLastSelectedPathComponent();
                 String nodeName = selectedNode.getName();
-                if (selectedNode instanceof FileImplementation) {
+                if (selectedNode instanceof File) {
                 // Perform operations with selected file
                 //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
                 if (e.getButton() == MouseEvent.BUTTON1) {// Left click
 
-                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(((FileImplementation) selectedNode)));
+                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(((File) selectedNode)));
                     // fileSystem.openFile(nodeName);
                 } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
                     if (row >= 0) {
@@ -103,7 +103,7 @@ public class Principal extends javax.swing.JFrame {
                         }
                     }
                     else if (result == 4) {
-                        String fileContent = fileSystem.readFileTree((FileImplementation) selectedNode);
+                        String fileContent = fileSystem.readFileTree((File) selectedNode);
                         String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
                         fileSystem.modifyFile(nodeName, newContent);
                     }
@@ -247,7 +247,7 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.YES_NO_CANCEL_OPTION,
                                     JOptionPane.QUESTION_MESSAGE,
                                     null,
-                                    new Object[]{"Ruta virtual a virtual", "Ruta virtual a real"},
+                                    new Object[]{"Ruta virtual a virtual", "Ruta virtual a real", "Ruta real a virtual"},
                                     "Ruta virtual a virtual");
 
                                 if (copyOption == 0) {
@@ -265,8 +265,9 @@ public class Principal extends javax.swing.JFrame {
                                     fileSystem.copyFileToRealPath(nodeName, copyPath);
                                     System.out.println("Path: " + copyPath);
                                 }
-
-                                
+                                else if (copyOption == 2) {
+                                    System.out.println("Copiando archivo a una ruta virtual");
+                                }
                             }
                             else if (result == 1) {
                                 // fileSystem.removeFile(nodeName);
@@ -387,7 +388,6 @@ public class Principal extends javax.swing.JFrame {
         createFileBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tree = new javax.swing.JTree();
-        copyFileRealToVirtual = new javax.swing.JButton();
         filesPanel = new javax.swing.JScrollPane();
         filesTable = new javax.swing.JTable();
 
@@ -450,24 +450,16 @@ public class Principal extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(tree);
 
-        copyFileRealToVirtual.setText("Copiar Archivo");
-        copyFileRealToVirtual.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyFileRealToVirtualActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout buttonsPanelLayout = new javax.swing.GroupLayout(buttonsPanel);
         buttonsPanel.setLayout(buttonsPanelLayout);
         buttonsPanelLayout.setHorizontalGroup(
             buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buttonsPanelLayout.createSequentialGroup()
+            .addGroup(buttonsPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(copyFileRealToVirtual, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(createDirectoryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(createFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addComponent(jScrollPane1)
         );
         buttonsPanelLayout.setVerticalGroup(
             buttonsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -477,9 +469,8 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(createFileBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(copyFileRealToVirtual)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         filesTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -493,6 +484,7 @@ public class Principal extends javax.swing.JFrame {
                 "Nombre", "Tamaño", "Extensión"
             }
         ) {
+            @SuppressWarnings("rawtypes")
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.Float.class, java.lang.String.class
             };
@@ -500,6 +492,7 @@ public class Principal extends javax.swing.JFrame {
                 false, false, false
             };
 
+            @SuppressWarnings("rawtypes")
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
@@ -529,7 +522,7 @@ public class Principal extends javax.swing.JFrame {
                     .addGroup(lowPanelLayout.createSequentialGroup()
                         .addComponent(buttonsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(filesPanel)))
+                    .addComponent(filesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -556,7 +549,7 @@ public class Principal extends javax.swing.JFrame {
         String search = searchTextBox.getText();
         System.out.println("Searching for: " + search);
         // search for the file or directory
-        ArrayList<FileImplementation> files = fileSystem.searchFile(search);
+        ArrayList<File> files = fileSystem.searchFile(search);
         ArrayList<Directory> directories = fileSystem.searchDirectory(search);
         // show the results
         if(files.size() > 0 || directories.size() > 0){
@@ -564,9 +557,9 @@ public class Principal extends javax.swing.JFrame {
             String[] columnNames = {"Name", "Type"};
             Object[][] data = new Object[files.size() + directories.size()][2];
             int i = 0;
-            for (FileImplementation file : files) {
+            for (File file : files) {
                 data[i][0] = file.getName();
-                data[i][1] = "FileImplementation";
+                data[i][1] = "File";
                 i++;
             }
             for (Directory directory : directories) {
@@ -582,21 +575,6 @@ public class Principal extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
         }
     }//GEN-LAST:event_searchActionPerformed
-
-    private void copyFileRealToVirtualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyFileRealToVirtualActionPerformed
-        System.out.println("Copiando archivo a una ruta virtual");
-       //abrir ventana que permita seleccionar una ruta al usuario
-       //new javax.swing.JFileChooser().showOpenDialog(null);
-       javax.swing.JFileChooser path = new javax.swing.JFileChooser();
-       path.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
-       path.showOpenDialog(null);
-
-       String copyPath = path.getSelectedFile().getAbsolutePath();
-       fileSystem.copyRealDirectoryToVirtualPath(path.getSelectedFile(), fileSystem.getCurrent());
-       System.out.println("Path: " + copyPath);
-       updateFilesTable(fileSystem.getCurrent());
-       treeModel.reload();
-    }//GEN-LAST:event_copyFileRealToVirtualActionPerformed
 
     private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//
         //input dialog para el nombre del archivo
@@ -673,7 +651,6 @@ public class Principal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backToFatherDirectoryBtn;
     private javax.swing.JPanel buttonsPanel;
-    private javax.swing.JButton copyFileRealToVirtual;
     private javax.swing.JButton createDirectoryBtn;
     private javax.swing.JButton createFileBtn;
     private javax.swing.JScrollPane filesPanel;
