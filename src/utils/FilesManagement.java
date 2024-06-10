@@ -40,7 +40,7 @@ public class FilesManagement {
 
   /**
    * Crea un archivo con el nombre recibido por parámetro en la función.
-   *
+   * 
    * @param pNombre la ruta y nombre del archivo que se quiere crear.
    * @return
    */
@@ -60,7 +60,7 @@ public class FilesManagement {
 
   /**
    * Escribe contenido en un archivo. Esta función específicamente
-   *
+   * 
    * @param pNombre Ruta del archivo y nombre de este.
    * @param pContenido El contenido que va a ser escrito.
    */
@@ -77,7 +77,7 @@ public class FilesManagement {
 
   /**
    * Agrega contenido a un archivo ya existente.
-   *
+   * 
    * @param pNombre El nombre del archivo.
    * @param pContenido El contenido que se desea agregar.
    */
@@ -97,7 +97,7 @@ public class FilesManagement {
 
   /**
    * Funcion que lee el contenido de un archivo y lo muestra en pantalla.
-   *
+   * 
    * @param pNombre El nombre del archivo.
    */
   public static void leerArchivo(String pNombre) {
@@ -119,15 +119,14 @@ public class FilesManagement {
 
   /**
    * Retorna el contenido del archivo en un string.
-   *
+   * 
    * @param filePath La ruta y nombre del archivo.
    * @return El contenido del archivo en un string.
    */
   public static String getContenido(String filePath) {
     try {
       StringBuffer fileData = new StringBuffer();
-      BufferedReader reader = new BufferedReader(
-              new FileReader(filePath));
+      BufferedReader reader = new BufferedReader(new FileReader(filePath));
       char[] buf = new char[1024];
       int numRead = 0;
       while ((numRead = reader.read(buf)) != -1) {
@@ -140,5 +139,34 @@ public class FilesManagement {
       System.out.println(filePath + " does not exist.");
     }
     return "";
+  }
+
+  /**
+   * Returns an array of File objects representing the files and directories in the specified directory.
+   * 
+   * @param path The path of the directory.
+   * @return An array of File objects representing the files and directories in the specified directory.
+   */
+  public static File[] getDirectoryFiles(String path) {
+    File folder = new File(path);
+    File[] listOfFiles = folder.listFiles();
+    return listOfFiles;
+  }
+
+  /**
+   * Returns the relative path of a file or directory with respect to a base directory.
+   * 
+   * @param baseDir The base directory.
+   * @param file The file or directory.
+   * @return The relative path of the file or directory.
+   */
+  public static String getRelativePath(File baseDir, File file) {
+    String basePath = baseDir.getAbsolutePath();
+    String filePath = file.getAbsolutePath();
+    if (filePath.startsWith(basePath)) {
+      return filePath.substring(basePath.length() + 1);
+    } else {
+      return filePath;
+    }
   }
 }

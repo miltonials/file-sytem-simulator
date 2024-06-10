@@ -2,11 +2,12 @@ package Controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.ArrayList;
 
 import Model.Directory;
 import Model.Disk;
-import Model.File;
+import Model.FileImplementation;
 import Model.Node;
 import utils.FilesManagement;
 
@@ -48,14 +49,14 @@ public class FileSystem {
         return node;
     }
 
-    private File findFile(String name) {
+    private FileImplementation findFile(String name) {
         Node node = findNode(name);
 
-        if (node == null || !(node instanceof File)) {
+        if (node == null || !(node instanceof FileImplementation)) {
             return null;
         }
 
-        return (File) node;
+        return (FileImplementation) node;
     }
 
     private Directory findDirectory(String name) {
@@ -110,7 +111,7 @@ public class FileSystem {
     public boolean createFile(String name, String content) {
         int startSector = disk.newFile(name, content);
         if (fileExists(name)) {
-            System.out.println("File already exists");
+            System.out.println("FileImplementation already exists");
             return false;
         }
         if (startSector == -1) {
@@ -118,13 +119,13 @@ public class FileSystem {
             return false;
         }
 
-        current.addChild(new File(name, current.getPath() + name + "/", current, startSector));
+        current.addChild(new FileImplementation(name, current.getPath() + name + "/", current, startSector));
         System.out.println(disk.toString());
         return true;
     }
 
     public boolean fileExists(String name) {
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
         if (file != null) {
             return true;
         }
@@ -132,7 +133,7 @@ public class FileSystem {
     }
 
     public String readFile(String name) {
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
 
         if (file == null) {
             return null;
@@ -140,12 +141,12 @@ public class FileSystem {
 
         return disk.readFile(file.getStart());
     }
-    public String readFileTree(File file){
+    public String readFileTree(FileImplementation file){
         return disk.readFile(file.getStart());
     }
 
     public void modifyFile(String name, String content) {
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
         if (file == null) {
             return;
         }
@@ -155,7 +156,7 @@ public class FileSystem {
     }
 
     public void removeFile(String name) {
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
 
         if (file == null) {
             return;
@@ -167,7 +168,7 @@ public class FileSystem {
     }
 
     public String getFileProperties(String name) {
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
         String properties;
 
         if (file == null) {
@@ -194,11 +195,11 @@ public class FileSystem {
     }
 
     // funcion que busca un archivo en el disco, si lo encuentra lo retorna, debe buscar en todos los directorios del disco
-    public ArrayList<File> searchFile(String name) {
-        ArrayList<File> files = new ArrayList<>();
+    public ArrayList<FileImplementation> searchFile(String name) {
+        ArrayList<FileImplementation> files = new ArrayList<>();
         for (Node node : root.getChildren()) {
-            if (node instanceof File) {
-                File file = (File) node;
+            if (node instanceof FileImplementation) {
+                FileImplementation file = (FileImplementation) node;
                 if (file.getName().contains(name)) {
                     files.add(file);
                 }
@@ -232,7 +233,7 @@ public class FileSystem {
         if (directory == null) {
             return;
         }
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
         if (file == null) {
             return;
         }
@@ -295,7 +296,7 @@ public class FileSystem {
 
     public void copyFileToRealPath(String name, String path) {
         System.out.println("Copiando archivo" + name + " a " + path);
-        File file = findFile(name);
+        FileImplementation file = findFile(name);
         if (file == null) {
             return;
         }
@@ -312,8 +313,8 @@ public class FileSystem {
         }
         FilesManagement.newFolder(path + "\\" + name);
         for (Node node : directory.getChildren()) {
-            if (node instanceof File) {
-                File file = (File) node;
+            if (node instanceof FileImplementation) {
+                FileImplementation file = (FileImplementation) node;
                 String filename = file.getName().replace("/", "");
                 FilesManagement.crearArchivo(path + "\\" + name + "\\" + filename);
                 FilesManagement.escribirArchivo(path + "\\" + name + "\\" + filename, disk.readFile(file.getStart()));
@@ -327,4 +328,27 @@ public class FileSystem {
             }
         }
     }
+    
+
+
+
+    public void copyRealDirectoryToVirtualPath(File generalFile, Directory directory) {
+        setCurrent(directory);
+        if (!generalFile.isDirectory()) {
+            
+           createFile(generalFile.getName(), FilesManagement.getContenido(generalFile.getAbsolutePath()));
+        }
+        else{
+            createDirectory(generalFile.getName());
+            setCurrent(findDirectory(generalFile.getName()));
+            for (File file : generalFile.listFiles()) {
+                copyRealDirectoryToVirtualPath(file, getCurrent());
+            }
+        }
+    }
+
+
+
+
+
 }
