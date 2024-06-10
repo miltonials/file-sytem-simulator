@@ -66,6 +66,60 @@ public class Directory extends Node {
         return Collections.enumeration(children);
     }
 
+    public Collection<? extends File> searchFile(String name) {
+        ArrayList<File> files = new ArrayList<>();
+        for (Node node : children) {
+            if (node instanceof File && node.getName().equals(name)) {
+                files.add((File) node);
+            }
+        }
+        return files;
+    }
+
+    public Collection<? extends Directory> searchDirectory(String name) {
+        ArrayList<Directory> directories = new ArrayList<>();
+        for (Node node : children) {
+            if (node instanceof Directory && node.getName().equals(name)) {
+                directories.add((Directory) node);
+            }
+        }
+        return directories;
+    }
+
+    //verifica si existe un directorio con el path que se le pasa
+    public boolean directoryExists(String path, Node node) {
+        for (Node child : ((Directory) node).children) {
+            if (child instanceof Directory) {
+                Directory directory = (Directory) child;
+                System.out.println("path: " + path);
+                System.out.println("directory.getPath(): " + directory.getPath());
+                if (directory.getPath().equals(path)) {
+                    return true;
+                }
+                if (directory.directoryExists(path, child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
+    public Directory getDirectory(String path, Node node) {
+        for (Node child : ((Directory) node).children) {
+            if (child instanceof Directory) {
+                Directory directory = (Directory) child;
+                if (directory.getPath().equals(path)) {
+                    return directory;
+                }
+                if (directory.directoryExists(path, child)) {
+                    return directory;
+                }
+            }
+        }
+        return null;
+    }
+
     
 
 }
