@@ -18,6 +18,7 @@ import javax.swing.tree.DefaultTreeModel;
 import Controller.FileSystem;
 import Model.Directory;
 import Model.File;
+import Model.Node;
 
 /**
  *
@@ -59,20 +60,18 @@ public class Principal extends javax.swing.JFrame {
             int row = tree.getRowForLocation(e.getX(), e.getY());
             if (row != -1) {
                 tree.setSelectionRow(row);
-                File selectedNode = (File) tree.getLastSelectedPathComponent();
-                
+                Node selectedNode = (Node) tree.getLastSelectedPathComponent();
+                String nodeName = selectedNode.getName();
                 if (selectedNode instanceof File) {
                 // Perform operations with selected file
                 //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
                 if (e.getButton() == MouseEvent.BUTTON1) {// Left click
 
-                    String nodeName = selectedNode.getName();
-                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(((File) selectedNode)));
                     // fileSystem.openFile(nodeName);
                 } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
                     if (row >= 0) {
-                    String nodeName = selectedNode.getName();
-                    System.out.println("nodeName: " + nodeName);
+                    
                     int result = JOptionPane.showOptionDialog(null,
                         "Seleccione una opción",
                         "Opciones",
@@ -104,7 +103,7 @@ public class Principal extends javax.swing.JFrame {
                         }
                     }
                     else if (result == 4) {
-                        String fileContent = fileSystem.readFile(nodeName);
+                        String fileContent = fileSystem.readFileTree((File) selectedNode);
                         String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
                         fileSystem.modifyFile(nodeName, newContent);
                     }
