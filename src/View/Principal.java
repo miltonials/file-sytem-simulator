@@ -65,6 +65,7 @@ public class Principal extends javax.swing.JFrame {
                 tree.setSelectionRow(row);
                 Node selectedNode = (Node) tree.getLastSelectedPathComponent();
                 String nodeName = selectedNode.getName();
+                int[] selectedRows = filesTable.getSelectedRows();
                 if (selectedNode instanceof FileImplementation) {
                 // Perform operations with selected file
                 //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
@@ -93,7 +94,18 @@ public class Principal extends javax.swing.JFrame {
                         new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
                         "Eliminar");
                     if (result == 1) {
-                        fileSystem.removeFile(nodeName);
+                        // fileSystem.removeFile(nodeName);
+                        // updateFilesTable(fileSystem.getCurrent());
+                        // borrar archivos seleccionados
+                        for (int i = 0; i < selectedRows.length; i++) {
+                            // validar que sea un archivo para borrarlo
+                            if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                fileSystem.removeFile(filesTable.getValueAt(selectedRows[i], 0).toString());
+                            }
+                            else{
+                                fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
+                            }
+                        }
                         updateFilesTable(fileSystem.getCurrent());
                         treeModel.reload();
                     }

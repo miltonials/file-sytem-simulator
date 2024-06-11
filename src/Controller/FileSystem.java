@@ -170,8 +170,8 @@ public class FileSystem {
     }
 
     public void removeFile(String name) {
+        System.out.println("Removing file: " + name);
         FileImplementation file = findFile(name);
-
         if (file == null) {
             return;
         }
