@@ -75,6 +75,13 @@ public class FileSystem {
         support.firePropertyChange("current", oldCurrent, current);
     }
 
+    public void setCurrent(String path) {
+        Directory directory = getDirectory(path);
+        if (directory != null) {
+            setCurrent(directory);
+        }
+    }
+
     public void changeDirectory(String name) {
         if (name.equals("..")) {
             if (current != root) {
@@ -130,6 +137,13 @@ public class FileSystem {
             return true;
         }
         return false;
+    }
+
+    // lee el archivo que se le pasa por parametro
+    public String readFile(FileImplementation file) {
+        //mover el archivo a la raiz, sacar el contenido y devolverlo a su lugar
+        String content = disk.readFile(file.getStart());
+        return content;    
     }
 
     public String readFile(String name) {
@@ -195,32 +209,49 @@ public class FileSystem {
     }
 
     // funcion que busca un archivo en el disco, si lo encuentra lo retorna, debe buscar en todos los directorios del disco
-    public ArrayList<FileImplementation> searchFile(String name) {
+    public ArrayList<FileImplementation> searchFile(String name, Directory uDirectory) {
         ArrayList<FileImplementation> files = new ArrayList<>();
-        for (Node node : root.getChildren()) {
+        // si el name esta vacio retorna los archivos y directorios del directorio actual
+        if (name.equals("")) {
+            for (Node node : uDirectory.getChildren()) {
+                if (node instanceof FileImplementation) {
+                    files.add((FileImplementation) node);
+                }
+            }
+            return files;
+        }
+        for (Node node : uDirectory.getChildren()) {
             if (node instanceof FileImplementation) {
                 FileImplementation file = (FileImplementation) node;
                 if (file.getName().contains(name)) {
                     files.add(file);
                 }
-            } else if (node instanceof Directory) {
-                Directory directory = (Directory) node;
-                files.addAll(directory.searchFile(name));
+            }
+            if (node instanceof Directory) {
+                files.addAll(((Directory) node).searchFile(name));
             }
         }
         return files;
     }
 
     // funcion que busca un directorio en el disco, si lo encuentra lo retorna, debe buscar en todos los directorios del disco
-    public ArrayList<Directory> searchDirectory(String name) {
+    public ArrayList<Directory> searchDirectory(String name, Directory uDirectory) {
         ArrayList<Directory> directories = new ArrayList<>();
-        for (Node node : root.getChildren()) {
+        if (name.equals("")) {
+            for (Node node : uDirectory.getChildren()) {
+                if (node instanceof Directory) {
+                    directories.add((Directory) node);
+                }
+            }
+            return directories;
+        }
+        for (Node node : uDirectory.getChildren()) {
             if (node instanceof Directory) {
                 Directory directory = (Directory) node;
                 if (directory.getName().contains(name)) {
                     directories.add(directory);
                 }
-                directories.addAll(directory.searchDirectory(name));
+                directories.addAll(((Directory) node).searchDirectory(name));
             }
         }
         return directories;

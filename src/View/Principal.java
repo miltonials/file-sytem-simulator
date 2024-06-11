@@ -27,6 +27,9 @@ import Model.Node;
 public class Principal extends javax.swing.JFrame {
     private FileSystem fileSystem;
     private DefaultTreeModel treeModel;
+    private boolean isSearching = false;
+    private ArrayList<FileImplementation> files;
+    private ArrayList<Directory> directories;
     /**
      * Creates new form Principal
      */
@@ -66,9 +69,18 @@ public class Principal extends javax.swing.JFrame {
                 // Perform operations with selected file
                 //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
                 if (e.getButton() == MouseEvent.BUTTON1) {// Left click
-
-                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(((FileImplementation) selectedNode)));
-                    // fileSystem.openFile(nodeName);
+                    if(isSearching){
+                        // se busca en el array de archivos
+                        for (FileImplementation file : files) {
+                            if(selectedNode.getName().equals(file.getName())){
+                                JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(file));
+                            }
+                        }
+                    }
+                    else{   
+                        JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFileTree(((FileImplementation) selectedNode)));
+                        // fileSystem.openFile(nodeName);
+                    }
                 } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
                     if (row >= 0) {
                     
@@ -139,10 +151,20 @@ public class Principal extends javax.swing.JFrame {
                     if(e.getButton() == MouseEvent.BUTTON1){// Left click
                         // if (row >= 0) {
                         if(selectedRows.length >= 1){
-                            // String nodeName = filesTable.getValueAt(row, 0).toString();
-                            // fileSystem.changeDirectory(nodeName);
-                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
-                            fileSystem.changeDirectory(nodeName);
+                            if(isSearching){
+                                // se mueve a la ruta del directorio
+                                for (Directory directory : directories) {
+                                    fileSystem.setCurrent(directory);
+                                    updateFilesTable(directory);
+                                    treeModel.reload();
+                                }
+                            }
+                            else{
+                                String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
+                                fileSystem.changeDirectory(nodeName);   
+                            
+                            }
+
                         }
                     }
                     else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
@@ -205,6 +227,31 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
                             }
+                            else if(result == 3){
+                                //mover directorios
+                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
+                                if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                    if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                        for(int i = 0; i < selectedRows.length; i++){
+                                            if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
+                                                fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                            else{
+                                                fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                        }
+                                        updateFilesTable(fileSystem.getCurrent());
+                                        treeModel.reload();
+
+                                    }
+                                    else {
+                                        JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
                             else if (result == 4) {
                                 String fileContent = fileSystem.readFile(nodeName);
                                 String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
@@ -223,8 +270,16 @@ public class Principal extends javax.swing.JFrame {
                         // if (row >= 0) {
                             // String nodeName = filesTable.getValueAt(row, 0).toString();
                         if(selectedRows.length >= 1){
-                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString(); 
-                            JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                            if(isSearching){
+                                // se busca en el array de archivos
+                                for (FileImplementation file : files) {
+                                    JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(file));
+                                }
+                            }
+                            else{
+                                String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
+                                JOptionPane.showMessageDialog(null, "Contenido: " + fileSystem.readFile(nodeName));
+                            }
                         }
                         // fileSystem.openFile(nodeName);
                     } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
@@ -289,10 +344,17 @@ public class Principal extends javax.swing.JFrame {
                                 String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
                                 if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
                                     if (fileSystem.directoryExistsRoot(newDirectoryName)) {
-                                        fileSystem.moveFile(nodeName, newDirectoryName);
+                                        for(int i = 0; i < selectedRows.length; i++){
+                                            if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                                fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                            else{
+                                                fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                            }
+                                        }
                                         updateFilesTable(fileSystem.getCurrent());
                                         treeModel.reload();
-                                        System.out.println("Se movió el archivo");
+
                                     }
                                     else {
                                         JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
@@ -556,31 +618,24 @@ public class Principal extends javax.swing.JFrame {
         String search = searchTextBox.getText();
         System.out.println("Searching for: " + search);
         // search for the file or directory
-        ArrayList<FileImplementation> files = fileSystem.searchFile(search);
-        ArrayList<Directory> directories = fileSystem.searchDirectory(search);
-        // show the results
-        if(files.size() > 0 || directories.size() > 0){
-            // show the results in a table
-            String[] columnNames = {"Name", "Type"};
-            Object[][] data = new Object[files.size() + directories.size()][2];
-            int i = 0;
-            for (FileImplementation file : files) {
-                data[i][0] = file.getName();
-                data[i][1] = "FileImplementation";
-                i++;
-            }
-            for (Directory directory : directories) {
-                data[i][0] = directory.getName();
-                data[i][1] = "Directory";
-                i++;
-            }
-            DefaultTableModel model = new DefaultTableModel(data, columnNames);
-            filesTable.setModel(model);
-            
+        files = fileSystem.searchFile(search, fileSystem.getCurrent());
+        directories = fileSystem.searchDirectory(search, fileSystem.getCurrent());
+        // se muestra en la tabla y se habilita la opción de abrir el archivo o directorio
+        String[] columnNames = {"Name", "Type"};
+        Object[][] data = new Object[files.size() + directories.size()][2];
+        for (int i = 0; i < files.size(); i++) {
+            data[i][0] = files.get(i).getName();
+            data[i][1] = "File";
         }
-        else{
-            JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+        for (int i = 0; i < directories.size(); i++) {
+            data[files.size() + i][0] = directories.get(i).getName();
+            data[files.size() + i][1] = "Directory";
         }
+        // si es distinto de vacío se pasa a true
+        isSearching = !search.isEmpty();
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        filesTable.setModel(model);
+
     }//GEN-LAST:event_searchActionPerformed
 
     private void copyFileRealToVirtualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyFileRealToVirtualActionPerformed

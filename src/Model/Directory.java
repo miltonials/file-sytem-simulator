@@ -69,8 +69,12 @@ public class Directory extends Node {
     public Collection<? extends FileImplementation> searchFile(String name) {
         ArrayList<FileImplementation> files = new ArrayList<>();
         for (Node node : children) {
-            if (node instanceof FileImplementation && node.getName().equals(name)) {
+            if (node instanceof FileImplementation && node.getName().contains(name)) {
                 files.add((FileImplementation) node);
+            }
+            // Si es un directorio, se busca en sus hijos
+            if (node instanceof Directory) {
+                files.addAll(((Directory) node).searchFile(name));
             }
         }
         return files;
@@ -79,8 +83,12 @@ public class Directory extends Node {
     public Collection<? extends Directory> searchDirectory(String name) {
         ArrayList<Directory> directories = new ArrayList<>();
         for (Node node : children) {
-            if (node instanceof Directory && node.getName().equals(name)) {
+            if (node instanceof Directory && node.getName().contains(name)) {
                 directories.add((Directory) node);
+            }
+            // Si es un directorio, se busca en sus hijos
+            if (node instanceof Directory) {
+                directories.addAll(((Directory) node).searchDirectory(name));
             }
         }
         return directories;
