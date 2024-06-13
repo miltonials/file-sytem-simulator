@@ -48,9 +48,28 @@ public class FileSystem {
         }
         return node;
     }
+    private Node findNode(String name, Directory directory) {
+        Node node = null;
+        for (Node n : directory.getChildren()) {
+            if (n.getName().equals(name)) {
+                node = n;
+                break;
+            }
+        }
+        return node;
+    }
 
     private FileImplementation findFile(String name) {
         Node node = findNode(name);
+
+        if (node == null || !(node instanceof FileImplementation)) {
+            return null;
+        }
+
+        return (FileImplementation) node;
+    }
+    private FileImplementation findFile(String name, Directory directory) {
+        Node node = findNode(name, directory);
 
         if (node == null || !(node instanceof FileImplementation)) {
             return null;
@@ -68,6 +87,16 @@ public class FileSystem {
 
         return (Directory) node;
     }
+    private Directory findDirectory(String name, Directory directory) {
+        Node node = findNode(name, directory);
+
+        if (node == null || !(node instanceof Directory)) {
+            return null;
+        }
+
+        return (Directory) node;
+    }
+
 
     public void setCurrent(Directory current) {
         Directory oldCurrent = this.current;
@@ -100,6 +129,9 @@ public class FileSystem {
     public void createDirectory(String name) {
         current.addChild(new Directory(name, current.getPath() + name + "/", current));
     }
+    public void createDirectory(String name, Directory directory) {
+        directory.addChild(new Directory(name, directory.getPath() + name + "/", directory));
+    }
     
     public boolean directoryExists(String name) {
         Directory directory = findDirectory(name);
@@ -130,9 +162,32 @@ public class FileSystem {
         System.out.println(disk.toString());
         return true;
     }
+    public boolean createFile(String name, String content, Directory directory) {
+        int startSector = disk.newFile(name, content);
+        if (fileExists(name, directory)) {
+            System.out.println("FileImplementation already exists");
+            return false;
+        }
+        if (startSector == -1) {
+            System.out.println("Not enough space");
+            return false;
+        }
+
+        directory.addChild(new FileImplementation(name, directory.getPath() + name + "/", directory, startSector));
+        System.out.println(disk.toString());
+        return true;
+    }
+
 
     public boolean fileExists(String name) {
         FileImplementation file = findFile(name);
+        if (file != null) {
+            return true;
+        }
+        return false;
+    }
+    public boolean fileExists(String name, Directory directory) {
+        FileImplementation file = findFile(name, directory);
         if (file != null) {
             return true;
         }
@@ -362,21 +417,20 @@ public class FileSystem {
             }
         }
     }
-    
-
 
 
     public void copyRealDirectoryToVirtualPath(File generalFile, Directory directory) {
-        setCurrent(directory);
+        
         if (!generalFile.isDirectory()) {
-            
-           createFile(generalFile.getName(), FilesManagement.getContenido(generalFile.getAbsolutePath()));
+            System.err.println("creando archivo: " + generalFile.getName());
+           createFile(generalFile.getName(), FilesManagement.getContenido(generalFile.getAbsolutePath()), directory);
         }
         else{
-            createDirectory(generalFile.getName());
-            setCurrent(findDirectory(generalFile.getName()));
+            System.err.println("creando directorio: " + generalFile.getName());
+            createDirectory(generalFile.getName(), directory);
+            Directory newDirectory=findDirectory(generalFile.getName(), directory);
             for (File file : generalFile.listFiles()) {
-                copyRealDirectoryToVirtualPath(file, getCurrent());
+                copyRealDirectoryToVirtualPath(file, newDirectory);
             }
         }
     }
