@@ -194,18 +194,38 @@ public class Principal extends javax.swing.JFrame {
                                     "Eliminar");
 
                             if (result == 0) {
-                                //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
-                                int copyOption = JOptionPane.showOptionDialog(null,
-                                    "Seleccione una opción",
-                                    "Opciones",
-                                    JOptionPane.YES_NO_CANCEL_OPTION,
-                                    JOptionPane.QUESTION_MESSAGE,
-                                    null,
-                                    new Object[]{"Ruta virtual a virtual", "Ruta virtual a real", "Ruta real a virtual"},
-                                    "Ruta virtual a virtual");
+                               //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
+                               int copyOption = JOptionPane.showOptionDialog(null,
+                                                "Seleccione una opción",
+                                                "Opciones",
+                                                JOptionPane.YES_NO_CANCEL_OPTION,
+                                                JOptionPane.QUESTION_MESSAGE,
+                                                null,
+                                                new Object[]{"Ruta virtual a virtual", "Ruta virtual a real"},
+                                                "Ruta virtual a virtual");
 
                                 if (copyOption == 0) {
-                                    System.out.println("Copiando directorio a la misma ruta");
+                                    String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea copiar el directorio(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
+                                    if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                        if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                            for(int i = 0; i < selectedRows.length; i++){
+                                                if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
+                                                    fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                }
+                                                else{
+                                                    fileSystem.copyFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                }
+                                            }
+                                            updateFilesTable(fileSystem.getCurrent());
+                                            treeModel.reload();
+                                        }
+                                        else {
+                                            JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    }
+                                    else {
+                                        JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                                    }
                                 }
                                 else if (copyOption == 1) {
                                     System.out.println("Copiando directorio a una ruta real");
@@ -318,7 +338,27 @@ public class Principal extends javax.swing.JFrame {
                                     "Ruta virtual a virtual");
 
                                 if (copyOption == 0) {
-                                    System.out.println("Copiando archivo a la misma ruta");
+                                    String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea copiar el archivo(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
+                                    if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                        if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                            for(int i = 0; i < selectedRows.length; i++){
+                                                if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                                    fileSystem.copyFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                }
+                                                else{
+                                                    fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                }
+                                            }
+                                            updateFilesTable(fileSystem.getCurrent());
+                                            treeModel.reload();
+                                        }
+                                        else {
+                                            JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    }
+                                    else {
+                                        JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                                    }
                                 }
                                 else if (copyOption == 1) {
                                     System.out.println("Copiando archivo a una ruta real");
@@ -447,7 +487,6 @@ public class Principal extends javax.swing.JFrame {
      * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         toolsPanel = new javax.swing.JPanel();

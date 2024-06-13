@@ -295,6 +295,9 @@ public class FileSystem {
     // recorre todo el arbol de directorios y archivos para validar si existe un directorio con el path que se le pasa
     public boolean directoryExistsRoot(String path) {
         System.out.println("path: " + path);
+        if(root.getPath().equals(path)){
+            return true;
+        }
         for (Node node : root.getChildren()) {
             if (node instanceof Directory) {
                 Directory directory = (Directory) node;
@@ -378,8 +381,44 @@ public class FileSystem {
         }
     }
 
+    public void copyDirectory(String name, String newDirectoryName) {
+        Directory directory = findDirectory(name);
+        if (directory == null) {
+            return;
+        }
+        Directory newDirectory = new Directory(name, directory.getPath() + newDirectoryName + "/", directory);
+        directory.addChild(newDirectory);
+        for (Node node : directory.getChildren()) {
+            if (node instanceof FileImplementation) {
+                FileImplementation file = (FileImplementation) node;
+                newDirectory.addChild(new FileImplementation(file.getName(), newDirectory.getPath() + file.getName() + "/", newDirectory, file.getStart()));
+                createFile(file.getName(), disk.readFile(file.getStart()));
+            } else if (node instanceof Directory) {
+                Directory dir = (Directory) node;
+                copyDirectory(dir.getName(), newDirectoryName);
+            }
+        }
+        //imprimimos el disco para ver los cambios
+        System.out.println(disk.toString());
+    }
 
+    public void copyFile(String name, String newDirectoryName) {
+        // sacamos el directorio dondde se desea copiar el archivo
+        Directory directory = getDirectory(newDirectoryName);
+        if (directory == null) {
+            return;
+        }
+        // sacamos el archivo que se desea copiar
+        FileImplementation file = findFile(name);
+        if (file == null) {
+            return;
+        }
+        // copiamos el archivo al nuevo directorio
+        directory.addChild(new FileImplementation(name, directory.getPath() + name + "/", directory, file.getStart()));
+        createFile(name, disk.readFile(file.getStart()));
+        //imprimimos el disco para ver los cambios
+        System.out.println(disk.toString());
 
-
+    }
 
 }
