@@ -5,6 +5,8 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import Model.Directory;
 import Model.Disk;
 import Model.FileImplementation;
@@ -144,22 +146,58 @@ public class FileSystem {
     }
     
     public void removeDirectory(String name) {
+        Directory directory = findDirectory(name);
+        if (directory == null) {
+            return;
+        }
+
+        // eliminar todos los archivos y directorios del directorio que se desea eliminar
+        for (Node node : directory.getChildren()) {
+            if (node instanceof FileImplementation) {
+                FileImplementation file = (FileImplementation) node;
+                disk.deleteFile(file.getStart());
+            } else if (node instanceof Directory) {
+                Directory dir = (Directory) node;
+                setCurrent(directory);
+                removeDirectory(dir.getName());
+                setCurrent(directory.getParent());
+            }
+        }
+        
+
         current.removeChild(name);
+    }
+
+    private boolean validateFolderName(String name) {
+        //no puede contener caracteres especiales
+        return name.matches("[a-zA-Z0-9]+");
+    }
+
+    private boolean validateFileName(String name) {
+        //no puede contener caracteres especiales y debe tener extension
+        return name.matches("[a-zA-Z0-9]+\\.[a-zA-Z0-9]+");
     }
     
     public boolean createFile(String name, String content) {
         int startSector = disk.newFile(name, content);
+        if (!validateFileName(name)) {
+            JOptionPane.showMessageDialog(null, "El nombre del archivo deber ser con formato \"nombre archivo.extensión\"", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
         if (fileExists(name)) {
             System.out.println("FileImplementation already exists");
+            JOptionPane.showMessageDialog(null, "El archivo ya existe", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         if (startSector == -1) {
+            // JOptionPane.showMessageDialog(null, "No hay suficiente espacio en disco para guardar el archivo", "Error", JOptionPane.ERROR_MESSAGE);
             System.out.println("Not enough space");
             return false;
         }
 
         current.addChild(new FileImplementation(name, current.getPath() + name + "/", current, startSector));
         System.out.println(disk.toString());
+        JOptionPane.showMessageDialog(null, "Archivo creado exitosamente", "Información", JOptionPane.INFORMATION_MESSAGE);
         return true;
     }
     public boolean createFile(String name, String content, Directory directory) {
@@ -490,6 +528,13 @@ public class FileSystem {
         if (file == null) {
             return;
         }
+
+        if (!validateFileName(newDirectoryName)) {
+            JOptionPane.showMessageDialog(null, "El nombre del archivo deber ser con formato \"nombre archivo.extensión\"", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
         file.setName(newDirectoryName);
         file.setPath(file.getParent().getPath() + newDirectoryName + "/");
     }

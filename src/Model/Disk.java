@@ -6,6 +6,8 @@ package Model;
 
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author milto
@@ -66,9 +68,11 @@ public class Disk {
         Sector previousSector = null;
 
         if (pContent.length() > getFreeSize()) {
-            System.out.println("No hay suficiente espacio en disco para guardar el archivo " + pName + ".");
-            System.out.println("Espacio libre: " + getFreeSize() + " bytes.");
-            System.out.println("Tamaño del archivo: " + pContent.length() + " bytes.");
+            String message = "No hay suficiente espacio en disco para guardar el archivo " + pName + ".";
+            message += "\nEspacio libre: " + getFreeSize() + " bytes.";
+            message += "\nTamaño del archivo: " + pContent.length() + " bytes.";
+
+            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
             return -1;
         }
 

@@ -781,20 +781,10 @@ public class Principal extends javax.swing.JFrame {
                         JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     fileSystem.removeFile(newFileName);
-                    if(fileSystem.createFile(newFileName, content)){
-                        JOptionPane.showMessageDialog(this, "Archivo creado exitosamente.");
-                    }
-                    else {
-                        JOptionPane.showMessageDialog(this, "No hay suficiente espacio en el disco.");
-                    }
+                    fileSystem.createFile(newFileName, content);
                 }
             } else {
-                if(fileSystem.createFile(newFileName, content)){
-                    JOptionPane.showMessageDialog(this, "Archivo creado exitosamente.");
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, "No hay suficiente espacio en el disco.");
-                }
+                fileSystem.createFile(newFileName, content);
             }
             
             updateFilesTable(fileSystem.getCurrent());
