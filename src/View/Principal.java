@@ -35,10 +35,33 @@ public class Principal extends javax.swing.JFrame {
      */
     public Principal() {
         initComponents();
-        int sectorsQuantity = Integer.parseInt(JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:"));
-        int sizeSector = Integer.parseInt(JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:"));
+        String sectorsQuantity = JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:");
+        String sizeSector = JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:");
+        int sectors = 0;
+        int size = 0;
 
-        fileSystem = new FileSystem(sectorsQuantity, sizeSector);
+        while (sectorsQuantity == null || sizeSector == null || sectorsQuantity.trim().isEmpty() || sizeSector.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar una cantidad válida para los sectores y el tamaño de los sectores");
+            sectorsQuantity = JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:");
+            sizeSector = JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:");
+            try {
+                sectors = Integer.parseInt(sectorsQuantity);
+                size = Integer.parseInt(sizeSector);
+
+                if (sectors <= 0 || size <= 0) {
+                    JOptionPane.showMessageDialog(this, "Debe ingresar un valor mayor a 0.");
+                    sectorsQuantity = null;
+                    sizeSector = null;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar una cantidad válida para los sectores y el tamaño de los sectores");
+                sectorsQuantity = null;
+                sizeSector = null;
+            }
+        }
+
+        fileSystem = new FileSystem(sectors, size);
+        
         fileSystem.addPropertyChangeListener((PropertyChangeEvent evt) -> {
             if ("current".equals(evt.getPropertyName())) {
                 Directory currentDirectory = (Directory) evt.getNewValue();
