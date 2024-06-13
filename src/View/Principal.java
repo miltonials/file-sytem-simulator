@@ -30,35 +30,31 @@ public class Principal extends javax.swing.JFrame {
     private boolean isSearching = false;
     private ArrayList<FileImplementation> files;
     private ArrayList<Directory> directories;
+
+    private int getValidNumber(String message) {
+        int number = -1;
+        do {
+            try {
+                String input = JOptionPane.showInputDialog(this, message);
+                number = Integer.parseInt(input);
+                if (number <= 0) {
+                    JOptionPane.showMessageDialog(this, "Debe ingresar un valor mayor a 0.");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un número entero mayor a 0.");
+            }
+        } while (number <= 0);
+        return number;
+    }
+
     /**
      * Creates new form Principal
      */
     public Principal() {
         initComponents();
-        String sectorsQuantity = JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:");
-        String sizeSector = JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:");
-        int sectors = 0;
-        int size = 0;
-
-        while (sectorsQuantity == null || sizeSector == null || sectorsQuantity.trim().isEmpty() || sizeSector.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe ingresar una cantidad válida para los sectores y el tamaño de los sectores");
-            sectorsQuantity = JOptionPane.showInputDialog(this, "Escriba a cantidad de sectores del disco:");
-            sizeSector = JOptionPane.showInputDialog(this, "Escriba el tamaño de los sectores del disco:");
-            try {
-                sectors = Integer.parseInt(sectorsQuantity);
-                size = Integer.parseInt(sizeSector);
-
-                if (sectors <= 0 || size <= 0) {
-                    JOptionPane.showMessageDialog(this, "Debe ingresar un valor mayor a 0.");
-                    sectorsQuantity = null;
-                    sizeSector = null;
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Debe ingresar una cantidad válida para los sectores y el tamaño de los sectores");
-                sectorsQuantity = null;
-                sizeSector = null;
-            }
-        }
+        // Uso del método getValidNumber para obtener los valores
+        int sectors = getValidNumber("Escriba la cantidad de sectores del disco:");
+        int size = getValidNumber("Escriba el tamaño de los sectores del disco:");
 
         fileSystem = new FileSystem(sectors, size);
         
