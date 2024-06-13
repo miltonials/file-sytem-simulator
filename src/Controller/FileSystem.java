@@ -386,7 +386,7 @@ public class FileSystem {
         if (directory == null) {
             return;
         }
-        Directory newDirectory = new Directory(name, directory.getPath() + newDirectoryName + "/", directory);
+        Directory newDirectory = new Directory(name, current.getPath() + newDirectoryName + "/", current);
         directory.addChild(newDirectory);
         for (Node node : directory.getChildren()) {
             if (node instanceof FileImplementation) {
@@ -419,6 +419,25 @@ public class FileSystem {
         //imprimimos el disco para ver los cambios
         System.out.println(disk.toString());
 
+    }
+
+    public void renameDirectory(String nodeName, String newDirectoryName) {
+        Directory directory = findDirectory(nodeName);
+        if (directory == null) {
+            return;
+        }
+        directory.setName(newDirectoryName);
+        directory.setPath(directory.getParent().getPath() + newDirectoryName + "/");
+
+    }
+
+    public void renameFile(String nodeName, String newDirectoryName) {
+        FileImplementation file = findFile(nodeName);
+        if (file == null) {
+            return;
+        }
+        file.setName(newDirectoryName);
+        file.setPath(file.getParent().getPath() + newDirectoryName + "/");
     }
 
 }

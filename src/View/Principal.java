@@ -259,6 +259,29 @@ public class Principal extends javax.swing.JFrame {
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
                             }
+                            if(result == 2){
+                                //renombrar directorio
+                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del directorio:", nodeName);
+                                if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                    if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                        int optio = JOptionPane.showConfirmDialog(null,
+                                                "El directorio ya existe. ¿Desea sobreescribirlo?",
+                                                "Confirmar sobreescritura.",
+                                                JOptionPane.YES_NO_OPTION);
+                                        if (optio == JOptionPane.YES_OPTION) {
+                                            fileSystem.removeDirectory(newDirectoryName);
+                                            fileSystem.renameDirectory(nodeName, newDirectoryName);
+                                        }
+                                    } else {
+                                        fileSystem.renameDirectory(nodeName, newDirectoryName);
+                                    }
+                                    updateFilesTable(fileSystem.getCurrent());
+                                    treeModel.reload();
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
                             else if(result == 3){
                                 //mover directorios
                                 String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
@@ -390,6 +413,29 @@ public class Principal extends javax.swing.JFrame {
                                 }
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
+                            }
+                            else if(result == 2){
+                                //renombrar archivo
+                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del archivo:", nodeName);
+                                if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                    if (fileSystem.fileExists(newDirectoryName)) {
+                                        int optio = JOptionPane.showConfirmDialog(null,
+                                                "El archivo ya existe. ¿Desea sobreescribirlo?",
+                                                "Confirmar sobreescritura.",
+                                                JOptionPane.YES_NO_OPTION);
+                                        if (optio == JOptionPane.YES_OPTION) {
+                                            fileSystem.removeFile(newDirectoryName);
+                                            fileSystem.renameFile(nodeName, newDirectoryName);
+                                        }
+                                    } else {
+                                        fileSystem.renameFile(nodeName, newDirectoryName);
+                                    }
+                                    updateFilesTable(fileSystem.getCurrent());
+                                    treeModel.reload();
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null, "El nombre del archivo no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                                }
                             }
                             else if(result == 3){
                                 //mover archivos
