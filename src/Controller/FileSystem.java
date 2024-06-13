@@ -422,11 +422,11 @@ public class FileSystem {
     public void copyRealDirectoryToVirtualPath(File generalFile, Directory directory) {
         
         if (!generalFile.isDirectory()) {
-            System.err.println("creando archivo: " + generalFile.getName());
+            
            createFile(generalFile.getName(), FilesManagement.getContenido(generalFile.getAbsolutePath()), directory);
         }
         else{
-            System.err.println("creando directorio: " + generalFile.getName());
+            
             createDirectory(generalFile.getName(), directory);
             Directory newDirectory=findDirectory(generalFile.getName(), directory);
             for (File file : generalFile.listFiles()) {
