@@ -158,6 +158,9 @@ public class FileSystem {
     }
     
     public void removeDirectory(String name) {
+        System.out.println("Removing directory: " + name);
+        //directory actual
+        System.out.println("Current: " + current.getName());
         Directory directory = findDirectory(name);
         if (directory == null) {
             return;
@@ -178,6 +181,19 @@ public class FileSystem {
         
 
         current.removeChild(name);
+    }
+
+    //removeDirectory con path
+    public void removeDirectoryPath(String path) {
+        //mover al directorio padre del directorio que se desea eliminar
+        Directory directory = getDirectory(path);
+        if (directory == null) {
+            return;
+        }
+        // se mueve al directorio padre del directorio que se desea eliminar
+        setCurrent(directory.getParent());
+        // se elimina el directorio que se desea eliminar
+        removeDirectory(directory.getName());
     }
 
     private boolean validateFolderName(String name) {
@@ -542,33 +558,91 @@ public class FileSystem {
     }
 
     public void copyDirectory(String name, String newDirectory) {
-        Directory directory = findDirectory(name);
-        if (directory == null) {
+    // Se valida primero que el directorio exista
+    Directory directory = findDirectory(name);
+    if (directory == null) {
+        return;
+    }
+    // Se valida que el nuevo directorio exista
+    Directory newDir = findDirectoryPath(newDirectory);
+    if (newDir == null) {
+        return;
+    }
+    // Se valida que no exista un directorio con el mismo nombre en el nuevo directorio
+    String newDirPath = newDir.getPath() + directory.getName() + "/";
+    if (directoryExistsRoot(newDirPath)) {
+        // Se le dice al usuario que ya existe un directorio con el mismo nombre y se le pregunta si desea sobreescribirlo, copiarlo o cancelar
+        String[] options = new String[]{"Sobreescribir", "Copiar", "Cancelar"};
+        int response = JOptionPane.showOptionDialog(null, "El directorio ya existe, ¿Qué desea hacer?", "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (response == 0) {
+            // Sobreescribir: Se elimina el directorio existente y se copia el nuevo
+            removeDirectoryPath(newDirectory + directory.getName() + "/");
+            //se vuelve ala ruta donde se encuentra el directorio que se desea copiar
+            setCurrent(directory.getParent());
+        } else if (response == 1) {
+            // Copiar: Se copia el directorio con un nombre diferente
+            String newName = generateUniqueName(newDir, directory.getName());
+            copyDirectoryWithNewName(directory, newName, newDir);
             return;
-        }
-        Directory newDir = findDirectoryPath(newDirectory);
-        if (newDir == null) {
+        } else {
+            // Cancelar o cualquier otra opción: no hacer nada
             return;
-        }
-        // Crear el nuevo directorio dentro del destino
-        Directory copiedDirectory = new Directory(directory.getName(), newDir.getPath() + directory.getName() + "/", newDir);
-        newDir.addChild(copiedDirectory);
-        System.out.println("Copiando " + name + " a " + newDirectory);
-        // Copiar los archivos y subdirectorios dentro del nuevo directorio
-        for (Node node : directory.getChildren()) {
-            if (node instanceof FileImplementation) {
-                FileImplementation file = (FileImplementation) node;
-                copiedDirectory.addChild(new FileImplementation(file.getName(), copiedDirectory.getPath() + file.getName() + "/", copiedDirectory, file.getStart()));
-                createFile(file.getName(), disk.readFile(file.getStart()));
-            } else if (node instanceof Directory) {
-                Directory dir = (Directory) node;
-                copyDirectory(dir.getName(), copiedDirectory.getPath());
-            }
         }
     }
+
+    // Crear el nuevo directorio dentro del destino
+    Directory copiedDirectory = new Directory(directory.getName(), newDirPath, newDir);
+    newDir.addChild(copiedDirectory);
+    System.out.println("Copiando " + name + " a " + newDirectory);
+    
+    // Copiar los archivos y subdirectorios dentro del nuevo directorio
+    for (Node node : directory.getChildren()) {
+        if (node instanceof FileImplementation) {
+            FileImplementation file = (FileImplementation) node;
+            FileImplementation copiedFile = new FileImplementation(file.getName(), copiedDirectory.getPath() + file.getName() + "/", copiedDirectory, file.getStart());
+            copiedDirectory.addChild(copiedFile);
+            createFile(file.getName(), disk.readFile(file.getStart()));
+        } else if (node instanceof Directory) {
+            Directory dir = (Directory) node;
+            copyDirectory(dir.getName(), copiedDirectory.getPath());
+        }
+    }
+}
+
+private void copyDirectoryWithNewName(Directory directory, String newName, Directory newDir) {
+    String newDirPath = newDir.getPath() + newName + "/";
+    Directory copiedDirectory = new Directory(newName, newDirPath, newDir);
+    newDir.addChild(copiedDirectory);
+
+    for (Node node : directory.getChildren()) {
+        if (node instanceof FileImplementation) {
+            FileImplementation file = (FileImplementation) node;
+            FileImplementation copiedFile = new FileImplementation(file.getName(), copiedDirectory.getPath() + file.getName() + "/", copiedDirectory, file.getStart());
+            copiedDirectory.addChild(copiedFile);
+            createFile(file.getName(), disk.readFile(file.getStart()));
+        } else if (node instanceof Directory) {
+            Directory dir = (Directory) node;
+            copyDirectoryWithNewName(dir, dir.getName(), copiedDirectory);
+        }
+    }
+}
+
+private String generateUniqueName(Directory parentDir, String baseName) {
+    String newName = baseName + "_copy";
+    int counter = 1;
+    while (directoryExistsRoot(parentDir.getPath() + newName + "/")) {
+        newName = baseName + "_copy" + counter;
+        counter++;
+    }
+    return newName;
+}
+
     
     //buscar el directorio que tenga el path que se le pasa
     private Directory findDirectoryPath(String newDirectory) {
+        if(root.getPath().equals(newDirectory)){
+            return root;
+        }
         for (Node node : root.getChildren()) {
             if (node instanceof Directory) {
                 Directory directory = (Directory) node;
