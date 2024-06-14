@@ -158,9 +158,13 @@ public class Principal extends javax.swing.JFrame {
                             path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
                             path.showOpenDialog(null);
 
-                            String copyPath = path.getSelectedFile().getAbsolutePath();
-                            fileSystem.copyFileToRealPath(nodeName, copyPath);
-                            System.out.println("Path: " + copyPath);
+                            try {
+                                String copyPath = path.getSelectedFile().getAbsolutePath();
+                                fileSystem.copyFileToRealPath(nodeName, copyPath);
+                                System.out.println("Path: " + copyPath);
+                            } catch (NullPointerException e1) {
+                                System.out.println("No se seleccionó ninguna ruta.");
+                            }
                         }
                     }
                     else
@@ -492,9 +496,13 @@ public class Principal extends javax.swing.JFrame {
                                     path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
                                     path.showOpenDialog(null);
 
-                                    String copyPath = path.getSelectedFile().getAbsolutePath();
-                                    fileSystem.copyFileToRealPath(nodeName, copyPath);
-                                    System.out.println("Path: " + copyPath);
+                                    try {
+                                        String copyPath = path.getSelectedFile().getAbsolutePath();
+                                        fileSystem.copyFileToRealPath(nodeName, copyPath);
+                                        JOptionPane.showMessageDialog(null, "Archivo copiado a la ruta: " + copyPath);
+                                    } catch (NullPointerException e1) {
+                                        System.out.println("No se seleccionó ninguna ruta.");
+                                    }
                                 }
 
                                 
