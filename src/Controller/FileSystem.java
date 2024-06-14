@@ -564,4 +564,18 @@ public class FileSystem {
         file.setPath(file.getParent().getPath() + newDirectoryName + "/");
     }
 
+    public String getDirectoryProperties(String nodeName) {
+        Directory directory = findDirectory(nodeName);
+        String properties;
+
+        if (directory == null) {
+            return null;
+        }
+
+        properties = "\nName: " + directory.getName();
+        properties += "\nPath: " + directory.getPath();
+        properties += "\nCreated: " + directory.getCreated();
+        return properties;
+    }
+
 }

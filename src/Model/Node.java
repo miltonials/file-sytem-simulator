@@ -8,6 +8,7 @@ public class Node implements TreeNode{
     private String path;
     private Directory parent;
     private String created;
+    private String modified;
 
     public Node(String name, String path, Directory parent) {
         this.name = name;
@@ -80,6 +81,14 @@ public class Node implements TreeNode{
     }
     public String toString(){
         return name;
+    }
+
+    public String getModified() {
+        return modified;
+    }
+
+    public void setModified() {
+        this.modified = new Date().toString();
     }
     
     

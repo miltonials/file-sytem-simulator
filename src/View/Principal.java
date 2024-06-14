@@ -405,7 +405,7 @@ public class Principal extends javax.swing.JFrame {
                             fileSystem.modifyFile(nodeName, newContent);
                         }
                         else if (result == 5) {
-                            JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
+                            JOptionPane.showMessageDialog(null, "Propiedades del directorio: "+ fileSystem.getDirectoryProperties(nodeName));
                         }
                     
                     }
