@@ -8,13 +8,14 @@ public class Node implements TreeNode{
     private String path;
     private Directory parent;
     private String created;
-    private String modified;
+    private String modified = "";
 
     public Node(String name, String path, Directory parent) {
         this.name = name;
         this.path = path;
         this.parent = parent;
         this.created = new Date().toString();
+        this.modified = this.created;
     }
     
     @Override

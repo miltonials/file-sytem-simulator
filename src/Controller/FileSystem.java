@@ -575,6 +575,8 @@ public class FileSystem {
         properties = "\nName: " + directory.getName();
         properties += "\nPath: " + directory.getPath();
         properties += "\nCreated: " + directory.getCreated();
+        //se muestra cuando se modifico por ultima vez, solo se muestra si se ha modificado
+        properties += "\nModified: " + directory.getModified();
         return properties;
     }
 
