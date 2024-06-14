@@ -133,9 +133,17 @@ public class FileSystem {
     }
 
     public void createDirectory(String name) {
+        if (!validateFolderName(name)) {
+            JOptionPane.showMessageDialog(null, "El nombre del directorio no puede contener caracteres especiales", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         current.addChild(new Directory(name, current.getPath() + name + "/", current));
     }
     public void createDirectory(String name, Directory directory) {
+        if (!validateFolderName(name)) {
+            JOptionPane.showMessageDialog(null, "El nombre del directorio no puede contener caracteres especiales", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         directory.addChild(new Directory(name, directory.getPath() + name + "/", directory));
     }
     
@@ -184,7 +192,7 @@ public class FileSystem {
             return false;
         }
 
-        String specialChars = "-_()&$";
+        String specialChars = "-_( )&$";
         String regex = "[a-zA-Z0-9" + specialChars + "]+\\.[a-zA-Z0-9]+";
 
         return name.matches(regex);
