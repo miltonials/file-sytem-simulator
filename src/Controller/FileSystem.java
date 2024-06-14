@@ -174,21 +174,44 @@ public class FileSystem {
     }
 
     private boolean validateFileName(String name) {
-        //no puede contener caracteres especiales y debe tener extension
-        return name.matches("[a-zA-Z0-9| ]+\\.[a-zA-Z0-9]+");
+        //no puede contener caracteres especiales solo -_()&$ y debe tener extension
+        String[] parts = name.split("\\.");
+        if (parts.length != 2) {
+            return false;
+        }
+
+        String specialChars = "-_()&$";
+        String regex = "[a-zA-Z0-9" + specialChars + "]+\\.[a-zA-Z0-9]+";
+
+        return name.matches(regex);
     }
     
     public boolean createFile(String name, String content) {
-        int startSector = disk.newFile(name, content);
         if (!validateFileName(name)) {
             JOptionPane.showMessageDialog(null, "El nombre del archivo deber ser con formato \"nombre archivo.extensión\"", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         if (fileExists(name)) {
             System.out.println("FileImplementation already exists");
-            JOptionPane.showMessageDialog(null, "El archivo ya existe", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
+            // JOptionPane.showMessageDialog(null, "El archivo ya existe", "Error", JOptionPane.ERROR_MESSAGE);
+            //ya existe desea sobreescribirlo o copiar o cancelar
+            // options array
+            String[] options = new String[] {"Sobreescribir", "Copiar", "Cancelar"};
+            int response = JOptionPane.showOptionDialog(null, "El archivo ya existe, ¿Qué desea hacer?", "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+            if (response == 0) {
+                modifyFile(name, content);
+                return true;
+            } else if (response == 1) {
+                String newName = name.split("\\.")[0] + "_copy." + name.split("\\.")[1];
+                createFile(newName, content);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
+        int startSector = disk.newFile(name, content);
         if (startSector == -1) {
             // JOptionPane.showMessageDialog(null, "No hay suficiente espacio en disco para guardar el archivo", "Error", JOptionPane.ERROR_MESSAGE);
             System.out.println("Not enough space");
@@ -534,9 +557,10 @@ public class FileSystem {
         // copiamos el archivo al nuevo directorio
         // directory.addChild(new FileImplementation(name, directory.getPath() + name + "/", directory, file.getStart()));
         // cambiamos el directorio actual al nuevo directorio
+        Directory currentNode = (Directory) current;
         setCurrent(directory);
         createFile(name, disk.readFile(file.getStart()));
-        setCurrent(directory.getParent());
+        setCurrent(currentNode);
         //imprimimos el disco para ver los cambios
         System.out.println(disk.toString());
 

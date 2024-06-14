@@ -537,9 +537,11 @@ public class Principal extends javax.swing.JFrame {
                                     updateFilesTable(fileSystem.getCurrent());
                                     treeModel.reload();
                                 }
-                                else {
+                                else if (newDirectoryName != null) {
                                     JOptionPane.showMessageDialog(null, "El nombre del archivo no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                                 }
+                                // else {
+                                // }
                             }
                             else if(result == 3){
                                 //mover archivos

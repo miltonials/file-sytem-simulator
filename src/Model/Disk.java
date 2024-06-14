@@ -151,7 +151,7 @@ public class Disk {
             }
         }
 
-        // for (int i = 0; i < startSectorId; i++) {
+        // for (int i = 0; i < startSectorId; el directorio ya++) {
         //     sector = sectors.get(i);
         //     if (sector.getContent().equals("")) {
         //         if (sectorId == -1) {
