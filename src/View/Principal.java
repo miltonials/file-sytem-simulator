@@ -608,6 +608,7 @@ public class Principal extends javax.swing.JFrame {
                 .toArray(Object[][]::new);
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         filesTable.setModel(model);
+        fileSystem.getDisk().diskToFile();
     }
 
     private void backToFatherDirectoryBtnActionPerformed(java.awt.event.ActionEvent evt) {

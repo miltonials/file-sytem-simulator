@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import utils.FilesManagement;
+
 /**
  *
  * @author milto
@@ -26,6 +28,7 @@ public class Disk {
             sectors.add(new Sector(pSizeSector));
         }
 
+        diskToFile();
         System.out.println("Disk created with " + pSectorsQuantity + " sectors of " + pSizeSector + " bytes.");
         System.out.println("Total size: " + size + " bytes.");
     }
@@ -187,12 +190,33 @@ public class Disk {
         return false;
     }
 
+    public void diskToFile() {
+        // se crea un archivo con el contenido del disco en el momento en formato json
+        String content = "{\n";
+        for (int i = 0; i < sectors.size(); i++) {
+            content += "  \"Sector " + sectors.get(i).getSectorId() + "\": {\n";
+            content += "    \"Content\": \"" + sectors.get(i).getContent() + "\",\n";
+            content += "    \"Next\": " + sectors.get(i).getNextId() + "\n";
+            if (i == sectors.size() - 1) {
+                content += "  }\n";
+            }
+            else {
+                content += "  },\n";
+            }
+        }
+        content += "}";
+        
+        FilesManagement.crearArchivo("disk.json");
+        FilesManagement.escribirArchivo("disk.json", content);
+    }
+
     public String toString() {
         String result = "";
         for (int i = 0; i < sectors.size(); i++) {
             result += "Sector " + sectors.get(i).getSectorId() + ": " + sectors.get(i).getContent() + " ---->"
                     + " Next: " + sectors.get(i).getNextId() + "\n";
         }
+        diskToFile();
         return result;
     }
 }

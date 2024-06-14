@@ -36,6 +36,10 @@ public class FileSystem {
         return root;
     }
 
+    public Disk getDisk() {
+        return disk;
+    }
+
     public Directory getCurrent() {
         return current;
     }
