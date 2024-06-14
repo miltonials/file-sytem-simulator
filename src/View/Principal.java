@@ -187,25 +187,42 @@ public class Principal extends javax.swing.JFrame {
                         updateFilesTable(fileSystem.getCurrent());
                         treeModel.reload();
                     }
+                    else if(result == 2){
+                        //renombrar archivo
+                        String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del archivo:", nodeName);
+                        if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                            if (fileSystem.fileExists(newDirectoryName)) {
+                                int optio = JOptionPane.showConfirmDialog(null,
+                                        "El archivo ya existe. ¿Desea sobreescribirlo?",
+                                        "Confirmar sobreescritura.",
+                                        JOptionPane.YES_NO_OPTION);
+                                if (optio == JOptionPane.YES_OPTION) {
+                                    fileSystem.removeFile(newDirectoryName);
+                                    fileSystem.renameFile(nodeName, newDirectoryName);
+                                }
+                            } else {
+                                fileSystem.renameFile(nodeName, newDirectoryName);
+                            }
+                            updateFilesTable(fileSystem.getCurrent());
+                            treeModel.reload();
+                        }
+                        else if (newDirectoryName != null) {
+                            JOptionPane.showMessageDialog(null, "El nombre del archivo no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        // else {
+                        // }
+                    }
                     else if(result == 3){
                         //mover archivos
                         String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
                         if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
-                            if (fileSystem.directoryExists(newDirectoryName)) {
-                                for(int i = 0; i < selectedRows.length; i++){
-                                    if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
-                                        fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                    }
-                                    else{
-                                        fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                    }
-                                }
-                                if(selectedRows.length == 0){
-                                    fileSystem.moveFile(nodeName, newDirectoryName);
-                                }
+                            if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                fileSystem.moveFile(nodeName, newDirectoryName);
+                                updateFilesTable(fileSystem.getCurrent());
+                                treeModel.reload();
                             }
                             else {
-                                JOptionPane.showMessageDialog(null, this, "El directorio no existe.", result);
+                                JOptionPane.showMessageDialog(null, "El directorio no existe.", "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
                         else {
@@ -616,6 +633,7 @@ public class Principal extends javax.swing.JFrame {
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         filesTable.setModel(model);
         fileSystem.getDisk().diskToFile();
+        treeModel.reload();
     }
 
     private void backToFatherDirectoryBtnActionPerformed(java.awt.event.ActionEvent evt) {
