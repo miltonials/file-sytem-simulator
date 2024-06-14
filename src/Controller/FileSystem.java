@@ -235,6 +235,7 @@ public class FileSystem {
         JOptionPane.showMessageDialog(null, "Archivo creado exitosamente", "Información", JOptionPane.INFORMATION_MESSAGE);
         return true;
     }
+    
     public boolean createFile(String name, String content, Directory directory) {
         int startSector = disk.newFile(name, content);
         if (fileExists(name, directory)) {

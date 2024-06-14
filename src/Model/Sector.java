@@ -25,7 +25,6 @@ public class Sector {
     }
 
     public String getContent() {
-        isFree = false;
         return content;
     }
 
@@ -64,6 +63,7 @@ public class Sector {
     }
 
     public void setContent(String pContent) {
+        isFree = false;
         this.content = pContent;
     }
 

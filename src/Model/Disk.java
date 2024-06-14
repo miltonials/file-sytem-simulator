@@ -81,7 +81,7 @@ public class Disk {
 
         for (int i = 0; i < sectors.size(); i++) {
             sector = sectors.get(i);
-            if (sector.getContent().equals("")) {
+            if (sector.getContent().equals("") && sector.isFree()) {
                 if (sectorId == -1) {
                     sectorId = i;
                 }
