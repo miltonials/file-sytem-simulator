@@ -473,25 +473,47 @@ public class FileSystem {
         }
     }
 
-    public void copyDirectory(String name, String newDirectoryName) {
+    public void copyDirectory(String name, String newDirectory) {
         Directory directory = findDirectory(name);
         if (directory == null) {
             return;
         }
-        Directory newDirectory = new Directory(name, current.getPath() + newDirectoryName + "/", current);
-        directory.addChild(newDirectory);
+        Directory newDir = findDirectoryPath(newDirectory);
+        if (newDir == null) {
+            return;
+        }
+        // Crear el nuevo directorio dentro del destino
+        Directory copiedDirectory = new Directory(directory.getName(), newDir.getPath() + directory.getName() + "/", newDir);
+        newDir.addChild(copiedDirectory);
+        System.out.println("Copiando " + name + " a " + newDirectory);
+        // Copiar los archivos y subdirectorios dentro del nuevo directorio
         for (Node node : directory.getChildren()) {
             if (node instanceof FileImplementation) {
                 FileImplementation file = (FileImplementation) node;
-                newDirectory.addChild(new FileImplementation(file.getName(), newDirectory.getPath() + file.getName() + "/", newDirectory, file.getStart()));
+                copiedDirectory.addChild(new FileImplementation(file.getName(), copiedDirectory.getPath() + file.getName() + "/", copiedDirectory, file.getStart()));
                 createFile(file.getName(), disk.readFile(file.getStart()));
             } else if (node instanceof Directory) {
                 Directory dir = (Directory) node;
-                copyDirectory(dir.getName(), newDirectoryName);
+                copyDirectory(dir.getName(), copiedDirectory.getPath());
             }
         }
-        //imprimimos el disco para ver los cambios
-        System.out.println(disk.toString());
+    }
+    
+    //buscar el directorio que tenga el path que se le pasa
+    private Directory findDirectoryPath(String newDirectory) {
+        for (Node node : root.getChildren()) {
+            if (node instanceof Directory) {
+                Directory directory = (Directory) node;
+                if (directory.getPath().equals(newDirectory)) {
+                    return directory;
+                }
+                if (directory.directoryExists(newDirectory, node)) {
+                    return directory.getDirectory(newDirectory, node);
+                }
+            }
+        }
+        return null;
+        
     }
 
     public void copyFile(String name, String newDirectoryName) {
@@ -506,8 +528,11 @@ public class FileSystem {
             return;
         }
         // copiamos el archivo al nuevo directorio
-        directory.addChild(new FileImplementation(name, directory.getPath() + name + "/", directory, file.getStart()));
+        // directory.addChild(new FileImplementation(name, directory.getPath() + name + "/", directory, file.getStart()));
+        // cambiamos el directorio actual al nuevo directorio
+        setCurrent(directory);
         createFile(name, disk.readFile(file.getStart()));
+        setCurrent(directory.getParent());
         //imprimimos el disco para ver los cambios
         System.out.println(disk.toString());
 

@@ -112,6 +112,58 @@ public class Principal extends javax.swing.JFrame {
                         null,
                         new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover", "Modificar", "Propiedades"},
                         "Eliminar");
+
+                    if (result == 0) {
+                        //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
+                        int copyOption = JOptionPane.showOptionDialog(null,
+                            "Seleccione una opción",
+                            "Opciones",
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new Object[]{"Ruta virtual a virtual", "Ruta virtual a real"},
+                            "Ruta virtual a virtual");
+
+                        if (copyOption == 0) {
+                            String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea copiar el archivo(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
+                            if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                    for(int i = 0; i < selectedRows.length; i++){
+                                        if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                            fileSystem.copyFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                        }
+                                        else{
+                                            fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                        }
+                                    }
+                                    if(selectedRows.length == 0){
+                                        fileSystem.copyFile(nodeName, newDirectoryName);
+                                    }
+                                    updateFilesTable(fileSystem.getCurrent());
+                                    treeModel.reload();
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        else if (copyOption == 1) {
+                            System.out.println("Copiando archivo a una ruta real");
+                            //abrir ventana que permita seleccionar una ruta al usuario
+                            //new javax.swing.JFileChooser().showOpenDialog(null);
+                            javax.swing.JFileChooser path = new javax.swing.JFileChooser();
+                            path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+                            path.showOpenDialog(null);
+
+                            String copyPath = path.getSelectedFile().getAbsolutePath();
+                            fileSystem.copyFileToRealPath(nodeName, copyPath);
+                            System.out.println("Path: " + copyPath);
+                        }
+                    }
+                    else
                     if (result == 1) {
                         // fileSystem.removeFile(nodeName);
                         // updateFilesTable(fileSystem.getCurrent());
@@ -125,24 +177,35 @@ public class Principal extends javax.swing.JFrame {
                                 fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
                             }
                         }
+                        if(selectedRows.length == 0){
+                            fileSystem.removeFile(nodeName);
+                        }
                         updateFilesTable(fileSystem.getCurrent());
                         treeModel.reload();
                     }
                     else if(result == 3){
                         //mover archivos
-                        String newDirectoryName = JOptionPane.showInputDialog(this, "Escriba el directorio al que desea mover los archivos:");
+                        String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
                         if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
                             if (fileSystem.directoryExists(newDirectoryName)) {
-                                fileSystem.moveFile(nodeName, newDirectoryName);
-                                updateFilesTable(fileSystem.getCurrent());
-                                treeModel.reload();
+                                for(int i = 0; i < selectedRows.length; i++){
+                                    if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("File")){
+                                        fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                    }
+                                    else{
+                                        fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                    }
+                                }
+                                if(selectedRows.length == 0){
+                                    fileSystem.moveFile(nodeName, newDirectoryName);
+                                }
                             }
                             else {
                                 JOptionPane.showMessageDialog(null, this, "El directorio no existe.", result);
                             }
                         }
                         else {
-                            JOptionPane.showMessageDialog(null,this, "El nombre del directorio no puede estar vacío.", result, null);
+                            JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     else if (result == 4) {
@@ -199,124 +262,48 @@ public class Principal extends javax.swing.JFrame {
                         }
                     }
                     else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                        System.out.println("Right click");
                         // if (row >= 0) {
-                            // String nodeName = filesTable.getValueAt(row, 0).toString();
-                        if(selectedRows.length >= 1){
-                            String nodeName = filesTable.getValueAt(selectedRows[0], 0).toString();
-                            int result = JOptionPane.showOptionDialog(null,
-                                    "Seleccione una opción",
-                                    "Opciones",
-                                    JOptionPane.YES_NO_CANCEL_OPTION,
-                                    JOptionPane.QUESTION_MESSAGE,
-                                    null,
-                                    new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
-                                    "Eliminar");
+                        // String nodeName = filesTable.getValueAt(row, 0).toString();
+                        String nodeName = filesTable.getValueAt(row, 0).toString();
+                        int result = JOptionPane.showOptionDialog(null,
+                                "Seleccione una opción",
+                                "Opciones",
+                                JOptionPane.YES_NO_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
+                                "Eliminar");
 
-                            if (result == 0) {
-                               //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
-                               int copyOption = JOptionPane.showOptionDialog(null,
-                                                "Seleccione una opción",
-                                                "Opciones",
-                                                JOptionPane.YES_NO_CANCEL_OPTION,
-                                                JOptionPane.QUESTION_MESSAGE,
-                                                null,
-                                                new Object[]{"Ruta virtual a virtual", "Ruta virtual a real"},
-                                                "Ruta virtual a virtual");
+                        if (result == 0) {
+                            //copiar 1. ruta virtual a virtual, 2. ruta virtual a real, 3. ruta real a virtual
+                            int copyOption = JOptionPane.showOptionDialog(null,
+                                            "Seleccione una opción",
+                                            "Opciones",
+                                            JOptionPane.YES_NO_CANCEL_OPTION,
+                                            JOptionPane.QUESTION_MESSAGE,
+                                            null,
+                                            new Object[]{"Ruta virtual a virtual", "Ruta virtual a real"},
+                                            "Ruta virtual a virtual");
 
-                                if (copyOption == 0) {
-                                    String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea copiar el directorio(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
-                                    if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
-                                        if (fileSystem.directoryExistsRoot(newDirectoryName)) {
-                                            for(int i = 0; i < selectedRows.length; i++){
-                                                if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
-                                                    fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                                }
-                                                else{
-                                                    fileSystem.copyFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
-                                                }
-                                            }
-                                            updateFilesTable(fileSystem.getCurrent());
-                                            treeModel.reload();
-                                        }
-                                        else {
-                                            JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
-                                        }
-                                    }
-                                    else {
-                                        JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
-                                    }
-                                }
-                                else if (copyOption == 1) {
-                                    System.out.println("Copiando directorio a una ruta real");
-                                    //abrir ventana que permita seleccionar una ruta al usuario
-                                    //new javax.swing.JFileChooser().showOpenDialog(null);
-                                    javax.swing.JFileChooser path = new javax.swing.JFileChooser();
-                                    path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
-                                    path.showOpenDialog(null);
-
-                                    String copyPath = path.getSelectedFile().getAbsolutePath();
-                                    fileSystem.copyDirectoryToRealPath(nodeName, copyPath);
-                                    System.out.println("Path: " + copyPath);
-                                }
-                                else if (copyOption == 2) {
-                                    System.out.println("Copiando directorio a una ruta virtual");
-                                }
-                            }
-                            else if (result == 1) {
-                                // fileSystem.removeDirectory(nodeName);
-                                // updateFilesTable(fileSystem.getCurrent());
-                                // borrar directorios seleccionados
-                                for (int i = 0; i < selectedRows.length; i++) {
-                                    //validar que sea un directorio para borrarlo
-                                    if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
-                                        fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
-                                    }
-                                    else{
-                                        fileSystem.removeFile(filesTable.getValueAt(selectedRows[i], 0).toString());
-                                    }
-                               }
-                                updateFilesTable(fileSystem.getCurrent());
-                                treeModel.reload();
-                            }
-                            if(result == 2){
-                                //renombrar directorio
-                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del directorio:", nodeName);
+                            if (copyOption == 0) {
+                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea copiar el directorio(root/dir/):","Directorio", JOptionPane.QUESTION_MESSAGE);
                                 if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
                                     if (fileSystem.directoryExistsRoot(newDirectoryName)) {
-                                        int optio = JOptionPane.showConfirmDialog(null,
-                                                "El directorio ya existe. ¿Desea sobreescribirlo?",
-                                                "Confirmar sobreescritura.",
-                                                JOptionPane.YES_NO_OPTION);
-                                        if (optio == JOptionPane.YES_OPTION) {
-                                            fileSystem.removeDirectory(newDirectoryName);
-                                            fileSystem.renameDirectory(nodeName, newDirectoryName);
-                                        }
-                                    } else {
-                                        fileSystem.renameDirectory(nodeName, newDirectoryName);
-                                    }
-                                    updateFilesTable(fileSystem.getCurrent());
-                                    treeModel.reload();
-                                }
-                                else {
-                                    JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
-                                }
-                            }
-                            else if(result == 3){
-                                //mover directorios
-                                String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
-                                if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
-                                    if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                        System.out.println("Copiando directorio a una ruta virtual");
                                         for(int i = 0; i < selectedRows.length; i++){
                                             if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
-                                                fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
                                             }
                                             else{
-                                                fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                                fileSystem.copyFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
                                             }
+                                        }
+                                        if (selectedRows.length == 0) {
+                                            fileSystem.copyDirectory(nodeName, newDirectoryName);
                                         }
                                         updateFilesTable(fileSystem.getCurrent());
                                         treeModel.reload();
-
                                     }
                                     else {
                                         JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
@@ -326,19 +313,105 @@ public class Principal extends javax.swing.JFrame {
                                     JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                                 }
                             }
-                            else if (result == 4) {
-                                String fileContent = fileSystem.readFile(nodeName);
-                                String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
-                                fileSystem.modifyFile(nodeName, newContent);
+                            else if (copyOption == 1) {
+                                System.out.println("Copiando directorio a una ruta real");
+                                //abrir ventana que permita seleccionar una ruta al usuario
+                                //new javax.swing.JFileChooser().showOpenDialog(null);
+                                javax.swing.JFileChooser path = new javax.swing.JFileChooser();
+                                path.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+                                path.showOpenDialog(null);
+
+                                String copyPath = path.getSelectedFile().getAbsolutePath();
+                                fileSystem.copyDirectoryToRealPath(nodeName, copyPath);
+                                System.out.println("Path: " + copyPath);
                             }
-                            else if (result == 5) {
-                                JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
+                            else if (copyOption == 2) {
+                                System.out.println("Copiando directorio a una ruta virtual");
                             }
                         }
+                        else if (result == 1) {
+                            // fileSystem.removeDirectory(nodeName);
+                            // updateFilesTable(fileSystem.getCurrent());
+                            // borrar directorios seleccionados
+                            for (int i = 0; i < selectedRows.length; i++) {
+                                //validar que sea un directorio para borrarlo
+                                if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
+                                    fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                }
+                                else{
+                                    fileSystem.removeFile(filesTable.getValueAt(selectedRows[i], 0).toString());
+                                }
+                            }
+                            if(selectedRows.length == 0){
+                                fileSystem.removeDirectory(nodeName);
+                                }
+                            updateFilesTable(fileSystem.getCurrent());
+                            treeModel.reload();
+                        }
+                        if(result == 2){
+                            //renombrar directorio
+                            String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del directorio:", nodeName);
+                            if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                    int optio = JOptionPane.showConfirmDialog(null,
+                                            "El directorio ya existe. ¿Desea sobreescribirlo?",
+                                            "Confirmar sobreescritura.",
+                                            JOptionPane.YES_NO_OPTION);
+                                    if (optio == JOptionPane.YES_OPTION) {
+                                        fileSystem.removeDirectory(newDirectoryName);
+                                        fileSystem.renameDirectory(nodeName, newDirectoryName);
+                                    }
+                                } else {
+                                    fileSystem.renameDirectory(nodeName, newDirectoryName);
+                                }
+                                updateFilesTable(fileSystem.getCurrent());
+                                treeModel.reload();
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        else if(result == 3){
+                            //mover directorios
+                            String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el directorio al que desea mover los archivos(root/dir):","Directorio", JOptionPane.QUESTION_MESSAGE);
+                            if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
+                                if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                    for(int i = 0; i < selectedRows.length; i++){
+                                        if(filesTable.getValueAt(selectedRows[i], 1).toString().equals("Directory")){
+                                            fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                        }
+                                        else{
+                                            fileSystem.moveFile(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
+                                        }
+                                    }
+                                    if(selectedRows.length == 0){
+                                        fileSystem.moveDirectory(nodeName, newDirectoryName);
+                                    }
+                                    updateFilesTable(fileSystem.getCurrent());
+                                    treeModel.reload();
+
+                                }
+                                else {
+                                    JOptionPane.showMessageDialog(null,"El directorio no existe.","Error", JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        else if (result == 4) {
+                            String fileContent = fileSystem.readFile(nodeName);
+                            String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
+                            fileSystem.modifyFile(nodeName, newContent);
+                        }
+                        else if (result == 5) {
+                            JOptionPane.showMessageDialog(null, "Propiedades del directorio: " );
+                        }
+                    
                     }
                 }
                 else{
-                    //Aquí se maneja cuando se presiona un archivo y arriba cuando se preiona un directorio
+                    //Aquí se maneja cuando se presiona un archivo y arriba cuando se preciona un directorio
                     if (e.getButton() == MouseEvent.BUTTON1) {// Left click
                         // Open file
                         // if (row >= 0) {
@@ -391,6 +464,9 @@ public class Principal extends javax.swing.JFrame {
                                                     fileSystem.copyDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
                                                 }
                                             }
+                                            if(selectedRows.length == 0){
+                                                fileSystem.copyFile(nodeName, newDirectoryName);
+                                            }
                                             updateFilesTable(fileSystem.getCurrent());
                                             treeModel.reload();
                                         }
@@ -430,6 +506,9 @@ public class Principal extends javax.swing.JFrame {
                                         fileSystem.removeDirectory(filesTable.getValueAt(selectedRows[i], 0).toString());
                                     }
                                 }
+                                if(selectedRows.length == 0){
+                                    fileSystem.removeFile(nodeName);
+                                }
                                 updateFilesTable(fileSystem.getCurrent());
                                 treeModel.reload();
                             }
@@ -468,6 +547,9 @@ public class Principal extends javax.swing.JFrame {
                                             else{
                                                 fileSystem.moveDirectory(filesTable.getValueAt(selectedRows[i], 0).toString(), newDirectoryName);
                                             }
+                                        }
+                                        if (selectedRows.length == 0) {
+                                            fileSystem.moveFile(nodeName, newDirectoryName);
                                         }
                                         updateFilesTable(fileSystem.getCurrent());
                                         treeModel.reload();
