@@ -412,19 +412,44 @@ public class FileSystem {
 
     // mover un directorio de un directorio a otro
     public void moveDirectory(String name, String path) {
+        // Buscar el directorio a mover
         Directory directory = findDirectory(name);
         if (directory == null) {
             return;
         }
-        Directory newDirectory = findDirectory(path);
+    
+        // Buscar el nuevo directorio de destino
+        Directory newDirectory = getDirectory(path);
         if (newDirectory == null) {
             return;
         }
-        directory.setParent(newDirectory);
-        directory.setPath(newDirectory.getPath() + name + "/");
-        newDirectory.addChild(directory);
-        current.removeChild(name);
+    
+        // Si el path es "root/", mover el directorio a la raíz
+        if (path.equals("root/")) {
+            System.out.println("Moviendo a la raíz");
+            // Se elimina el directorio del directorio actual
+            directory.getParent().removeChild(name);
+            // Se actualiza la referencia del directorio padre y la ruta
+            directory.setParent(root);
+            directory.setPath(root.getPath() + name + "/");
+            // Se agrega el directorio a la raíz
+            root.addChild(directory);
+        } else {
+            // Se elimina el directorio del directorio actual
+            directory.getParent().removeChild(name);
+            // Se actualiza la referencia del directorio padre y la ruta
+            directory.setParent(newDirectory);
+            directory.setPath(newDirectory.getPath() + name + "/");
+            // Se agrega el directorio al nuevo directorio
+            newDirectory.addChild(directory);
+        }
+    
+        // Si es necesario, actualizar el directorio actual (current)
+        if (current.getName().equals(name)) {
+            setCurrent(directory);
+        }
     }
+    
     // recorre todo el arbol de directorios y archivos para validar si existe un directorio con el path que se le pasa
     public boolean directoryExistsRoot(String path) {
         System.out.println("path: " + path);
@@ -447,6 +472,9 @@ public class FileSystem {
     }
     // retorna el directorio que tiene el path que se le pasa
     public Directory getDirectory(String path) {
+        if(root.getPath().equals(path)){
+            return root;
+        }
         for (Node node : root.getChildren()) {
             if (node instanceof Directory) {
                 Directory directory = (Directory) node;
@@ -621,6 +649,23 @@ public class FileSystem {
         properties += "\nCreated: " + directory.getCreated();
         //se muestra cuando se modifico por ultima vez, solo se muestra si se ha modificado
         properties += "\nModified: " + directory.getModified();
+        // cantidad de archivos y directorios que contiene y su tamaño
+        //  properties += "\nSize: " + disk.getSectors().get(file.getStart()).getAllContent().length() + " bytes";
+        int files = 0;
+        for (Node node : directory.getChildren()) {
+            if (node instanceof FileImplementation) {
+                files++;
+            }
+        }
+        properties += "\nFiles: " + files;
+        int size = 0;
+        for (Node node : directory.getChildren()) {
+            if (node instanceof FileImplementation) {
+                FileImplementation file = (FileImplementation) node;
+                size += disk.getSectors().get(file.getStart()).getAllContent().length();
+            }
+        } 
+        properties += "\nSize: " + size + " bytes";
         return properties;
     }
 

@@ -415,7 +415,14 @@ public class Principal extends javax.swing.JFrame {
                         //     fileSystem.modifyFile(nodeName, newContent);
                         // }
                         else if (result == 4) {
-                            JOptionPane.showMessageDialog(null, "Propiedades del directorio: "+ fileSystem.getDirectoryProperties(nodeName));
+                            if(selectedRows.length >= 1){
+                                for (int i = 0; i < selectedRows.length; i++) {
+                                    JOptionPane.showMessageDialog(null, "Propiedades del directorio: "+ fileSystem.getDirectoryProperties(filesTable.getValueAt(selectedRows[i], 0).toString()));
+                                }
+                            }
+                            else{
+                                JOptionPane.showMessageDialog(null, "Propiedades del directorio: "+ fileSystem.getDirectoryProperties(nodeName));
+                            }
                         }
                     
                     }

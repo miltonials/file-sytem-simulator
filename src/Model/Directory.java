@@ -128,6 +128,20 @@ public class Directory extends Node {
         return null;
     }
 
+    public String getSize() {
+        long size = 0;
+        for (Node node : children) {
+            if (node instanceof FileImplementation) {
+                // properties += "\nSize: " + disk.getSectors().get(file.getStart()).getAllContent().length() + " bytes";
+                size += Long.parseLong(((FileImplementation) node).getSize());
+            }
+            if (node instanceof Directory) {
+                size += Long.parseLong(((Directory) node).getSize());
+            }
+        }
+        return String.valueOf(size);
+    }
+
     
 
 }

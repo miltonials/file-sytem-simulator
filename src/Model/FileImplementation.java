@@ -12,5 +12,9 @@ public class FileImplementation extends Node{
     public int getStart() {
         return start;
     }
+
+    public String getSize() {
+        return String.valueOf(start);
+    }
     
 }

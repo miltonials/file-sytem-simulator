@@ -1,0 +1,42 @@
+{
+  "Sector 0": {
+    "Content": "xxxxxxxxxxxx",
+    "Next": -1
+  },
+  "Sector 1": {
+    "Content": "yyyyyyyyyyyy",
+    "Next": -1
+  },
+  "Sector 2": {
+    "Content": "zzzzzzzzzzzz",
+    "Next": -1
+  },
+  "Sector 3": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 4": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 5": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 6": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 7": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 8": {
+    "Content": "",
+    "Next": -1
+  },
+  "Sector 9": {
+    "Content": "",
+    "Next": -1
+  }
+}
