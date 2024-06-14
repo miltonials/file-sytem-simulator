@@ -170,12 +170,12 @@ public class FileSystem {
 
     private boolean validateFolderName(String name) {
         //no puede contener caracteres especiales
-        return name.matches("[a-zA-Z0-9]+");
+        return name.matches("[a-zA-Z0-9| ]+");
     }
 
     private boolean validateFileName(String name) {
         //no puede contener caracteres especiales y debe tener extension
-        return name.matches("[a-zA-Z0-9]+\\.[a-zA-Z0-9]+");
+        return name.matches("[a-zA-Z0-9| ]+\\.[a-zA-Z0-9]+");
     }
     
     public boolean createFile(String name, String content) {
@@ -257,7 +257,10 @@ public class FileSystem {
         if (file == null) {
             return;
         }
+        String created = file.getCreated();
         disk.modifyFile(file.getStart(), content);
+        file.setModified();
+        file.setCreated(created);
         // file.setStart(disk.newFile(name, content));
         System.out.println(disk.toString());
     }
@@ -286,6 +289,7 @@ public class FileSystem {
         properties += "\nPath: " + file.getPath();
         properties += "\nSize: " + disk.getSectors().get(file.getStart()).getAllContent().length() + " bytes";
         properties += "\nCreated: " + file.getCreated();
+        properties += "\nModified: " + file.getModified();
         return properties;
     }
 
@@ -540,12 +544,14 @@ public class FileSystem {
 
     public void renameDirectory(String nodeName, String newDirectoryName) {
         Directory directory = findDirectory(nodeName);
-        if (directory == null) {
+        if (directory == null || !validateFolderName(newDirectoryName)) {
             return;
         }
+
+        
         directory.setName(newDirectoryName);
         directory.setPath(directory.getParent().getPath() + newDirectoryName + "/");
-
+        directory.setModified();
     }
 
     public void renameFile(String nodeName, String newDirectoryName) {
@@ -562,6 +568,7 @@ public class FileSystem {
 
         file.setName(newDirectoryName);
         file.setPath(file.getParent().getPath() + newDirectoryName + "/");
+        file.setModified();
     }
 
     public String getDirectoryProperties(String nodeName) {

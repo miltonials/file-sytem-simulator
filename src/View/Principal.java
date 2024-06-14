@@ -211,7 +211,10 @@ public class Principal extends javax.swing.JFrame {
                     else if (result == 4) {
                         String fileContent = fileSystem.readFileTree((FileImplementation) selectedNode);
                         String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
-                        fileSystem.modifyFile(nodeName, newContent);
+                        if(newContent != null && !newContent.trim().isEmpty()){
+                            fileSystem.modifyFile(nodeName, newContent);
+                        }
+                        // fileSystem.modifyFile(nodeName, newContent);
                     }
                     else if (result == 5) {
                         JOptionPane.showMessageDialog(null, "Propiedades del archivo: " + fileSystem.getFileProperties(nodeName));
@@ -272,7 +275,8 @@ public class Principal extends javax.swing.JFrame {
                                 JOptionPane.YES_NO_CANCEL_OPTION,
                                 JOptionPane.QUESTION_MESSAGE,
                                 null,
-                                new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
+                                // new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Modificar", "Propiedades"},
+                                new Object[]{"Copiar", "Eliminar", "Renombrar", "Mover" , "Propiedades"},
                                 "Eliminar");
 
                         if (result == 0) {
@@ -350,9 +354,11 @@ public class Principal extends javax.swing.JFrame {
                         }
                         if(result == 2){
                             //renombrar directorio
+                            System.out.println("caralolesssssssssss");
                             String newDirectoryName = JOptionPane.showInputDialog(null, "Escriba el nuevo nombre del directorio:", nodeName);
                             if (newDirectoryName != null && !newDirectoryName.trim().isEmpty()) {
-                                if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                // if (fileSystem.directoryExistsRoot(newDirectoryName)) {
+                                if (fileSystem.directoryExists(newDirectoryName)) {
                                     int optio = JOptionPane.showConfirmDialog(null,
                                             "El directorio ya existe. ¿Desea sobreescribirlo?",
                                             "Confirmar sobreescritura.",
@@ -399,12 +405,12 @@ public class Principal extends javax.swing.JFrame {
                                 JOptionPane.showMessageDialog(null, "El nombre del directorio no puede estar vacío.","Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
+                        // else if (result == 4) {
+                        //     String fileContent = fileSystem.readFile(nodeName);
+                        //     String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
+                        //     fileSystem.modifyFile(nodeName, newContent);
+                        // }
                         else if (result == 4) {
-                            String fileContent = fileSystem.readFile(nodeName);
-                            String newContent = JOptionPane.showInputDialog(null, "Escriba el nuevo contenido del archivo:", fileContent);
-                            fileSystem.modifyFile(nodeName, newContent);
-                        }
-                        else if (result == 5) {
                             JOptionPane.showMessageDialog(null, "Propiedades del directorio: "+ fileSystem.getDirectoryProperties(nodeName));
                         }
                     

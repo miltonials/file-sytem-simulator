@@ -1,6 +1,7 @@
 package Model;
 import java.util.Date;
 import java.util.Enumeration;
+
 import javax.swing.tree.TreeNode;
 
 public class Node implements TreeNode{
@@ -21,6 +22,10 @@ public class Node implements TreeNode{
     @Override
     public Directory getParent() {
         return parent;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
     }
 
     public String getCreated() {

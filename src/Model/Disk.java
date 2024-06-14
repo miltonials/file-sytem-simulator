@@ -106,6 +106,10 @@ public class Disk {
     }
 
     public int modifyFile(int startSectorId, String pContent) {
+        if (pContent == null) {
+            return -1;
+        }
+
         Sector sector =sectors.get(startSectorId);
         int sectorId = -1;
         Sector previousSector = null;
@@ -113,15 +117,19 @@ public class Disk {
 
 
         if (pContent.length() > freeSpace) {
-            System.out.println("No hay suficiente espacio en disco para modificar el archivo.");
-            System.out.println("Espacio total disponible para el archivo: " + freeSpace + " bytes.");
-            System.out.println("Tamaño del contenido modificado: " + pContent.length() + " bytes.");
+            String message = "No hay suficiente espacio en disco para modificar el archivo.";
+            message += "\nEspacio total disponible para el archivo: " + freeSpace + " bytes.";
+            message += "\nTamaño del contenido modificado: " + pContent.length() + " bytes.";
+
+            JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+            // System.out.println("No hay suficiente espacio en disco para modificar el archivo.");
+            // System.out.println("Espacio total disponible para el archivo: " + freeSpace + " bytes.");
+            // System.out.println("Tamaño del contenido modificado: " + pContent.length() + " bytes.");
             return -1;
         }
-
         deleteFile(startSectorId);
 
-        for (int i = startSectorId; i < sectors.size(); i++) {
+        for (int i = 0; i < sectors.size(); i++) {
             sector = sectors.get(i);
             if (sector.getContent().equals("")) {
                 if (sectorId == -1) {
@@ -143,27 +151,27 @@ public class Disk {
             }
         }
 
-        for (int i = 0; i < startSectorId; i++) {
-            sector = sectors.get(i);
-            if (sector.getContent().equals("")) {
-                if (sectorId == -1) {
-                    sectorId = i;
-                }
-                if (previousSector != null) {
-                    previousSector.setNext(sector);
-                }
-                if (pContent.length() <= sector.getSize()) {
-                    sector.setContent(pContent);
-                    pContent = "";
-                    break;
-                }
-                else {
-                    sector.setContent(pContent.substring(0, sector.getSize()));
-                    pContent = pContent.substring(sector.getSize());
-                    previousSector = sector;
-                }
-            }
-        }
+        // for (int i = 0; i < startSectorId; i++) {
+        //     sector = sectors.get(i);
+        //     if (sector.getContent().equals("")) {
+        //         if (sectorId == -1) {
+        //             sectorId = i;
+        //         }
+        //         if (previousSector != null) {
+        //             previousSector.setNext(sector);
+        //         }
+        //         if (pContent.length() <= sector.getSize()) {
+        //             sector.setContent(pContent);
+        //             pContent = "";
+        //             break;
+        //         }
+        //         else {
+        //             sector.setContent(pContent.substring(0, sector.getSize()));
+        //             pContent = pContent.substring(sector.getSize());
+        //             previousSector = sector;
+        //         }
+        //     }
+        // }
         return sectorId;
     }
 
