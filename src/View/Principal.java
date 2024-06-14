@@ -726,7 +726,7 @@ public class Principal extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(tree);
 
-        copyFileRealToVirtual.setText("Copiar Archivo");
+        copyFileRealToVirtual.setText("Copiar desde PC");
         copyFileRealToVirtual.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 copyFileRealToVirtualActionPerformed(evt);
@@ -825,7 +825,7 @@ public class Principal extends javax.swing.JFrame {
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
     // function to search files and directories
     private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
@@ -860,11 +860,16 @@ public class Principal extends javax.swing.JFrame {
        path.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
        path.showOpenDialog(null);
 
-       String copyPath = path.getSelectedFile().getAbsolutePath();
-       fileSystem.copyRealDirectoryToVirtualPath(path.getSelectedFile(), fileSystem.getCurrent());
-       System.out.println("Path: " + copyPath);
-       updateFilesTable(fileSystem.getCurrent());
-       treeModel.reload();
+       try {
+           String copyPath = path.getSelectedFile().getAbsolutePath();
+           fileSystem.copyRealDirectoryToVirtualPath(path.getSelectedFile(), fileSystem.getCurrent());
+           System.out.println("Path: " + copyPath);
+           updateFilesTable(fileSystem.getCurrent());
+           treeModel.reload();
+       } catch (NullPointerException e) {
+           System.out.println("No se seleccionó ninguna ruta.");
+         }
+
     }//GEN-LAST:event_copyFileRealToVirtualActionPerformed
 
     private void createFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//
